@@ -1,16 +1,37 @@
-# React + Vite
+# C6 Lansman Kontrol Merkezi
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Turkcell C6 ekibinin talep, analiz ve lansman süreçlerini takip etmesi için
+geliştirilen bir yönetici dashboard'u. Staj projesi kapsamında geliştirilmiştir.
 
-Currently, two official plugins are available:
+## Özellikler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🔐 Rol bazlı giriş ekranı (Yönetici / Analist / QA)
+- 📊 Kişi bazlı ve genel lansman istatistikleri
+- 📈 Yıllık ay bazlı lansman, açılan talep ve açık/kapalı oranı grafikleri
+- ✅ Onay kuyruğu (Onayla/Reddet) ve SLA gecikme uyarıları
+- 🕒 Talep detay/zaman çizelgesi (Açıldı → Analiz → 2. Göz → QA → Lansman)
+- 👤 Kişi bazlı performans profili
+- 🏢 Takım bazlı talep dağılımı
+- 📅 Dönem karşılaştırması ve CSV dışa aktarım
+- 🔎 Arama, 🔔 bildirimler, 🌙/☀️ tema değiştirme
+- 📆 Zaman aralığı filtresi (Son 90 gün / Son 12 ay / Tüm zamanlar)
 
-## React Compiler
+## Kullanılan teknolojiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React (Vite ile)
+- Chart.js / react-chartjs-2
+- Vanilla CSS (custom design system)
 
-## Expanding the ESLint configuration
+## Geliştirme ortamını çalıştırma
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Tarayıcıda `http://localhost:5173` adresini aç.
+
+## Not
+
+Bu projedeki tüm veriler (kişi isimleri, talep açıklamaları, tarihler)
+**dummy** (sahte) verilerdir, gerçek Turkcell verisi içermez.
