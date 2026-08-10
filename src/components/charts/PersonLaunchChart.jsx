@@ -1,18 +1,16 @@
 import { Bar } from 'react-chartjs-2';
-import { DATA, PEOPLE } from '../../data/dummyData';
+import { PEOPLE } from '../../data/dummyData';
 
-export default function PersonLaunchChart() {
-  const launches = DATA.filter((r) => r.lansman);
+export default function PersonLaunchChart({ data }) {
+  const launches = data.filter((r) => r.lansman);
   const counts = {};
   PEOPLE.forEach((p) => (counts[p] = 0));
   launches.forEach((r) => counts[r.acanKisi]++);
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-  const data = {
+  const chartData = {
     labels: sorted.map((p) => p[0]),
-    datasets: [
-      { label: 'Lansman', data: sorted.map((p) => p[1]), backgroundColor: '#5AC8FA', borderRadius: 6 }
-    ]
+    datasets: [{ label: 'Lansman', data: sorted.map((p) => p[1]), backgroundColor: '#5AC8FA', borderRadius: 6 }]
   };
 
   const options = {
@@ -26,13 +24,8 @@ export default function PersonLaunchChart() {
 
   return (
     <div className="panel">
-      <div className="panel-head">
-        <h3>Kişi Bazlı Lansman Adedi</h3>
-        <span className="tag">Top 8</span>
-      </div>
-      <div className="chart-wrap tall">
-        <Bar data={data} options={options} />
-      </div>
+      <div className="panel-head"><h3>Kişi Bazlı Lansman Adedi</h3><span className="tag">Top 8</span></div>
+      <div className="chart-wrap tall"><Bar data={chartData} options={options} /></div>
     </div>
   );
 }

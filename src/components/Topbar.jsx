@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 const PAGE_TITLES = {
   overview: 'Genel Bakış',
   launches: 'Lansmanlar',
@@ -7,7 +9,11 @@ const PAGE_TITLES = {
   reports: 'Raporlar'
 };
 
-export default function Topbar({ activeView }) {
+const SEARCHABLE_VIEWS = ['pending', 'launches'];
+
+export default function Topbar({ activeView, search, onSearchChange, notifications, theme, onToggleTheme }) {
+  const [showNotif, setShowNotif] = useState(false);
+
   return (
     <div className="topbar">
       <div>
@@ -15,12 +21,40 @@ export default function Topbar({ activeView }) {
         <div className="subtitle">Tüm ekip · seçili dönem</div>
       </div>
       <div className="topbar-actions">
-        <div className="search-box">
-          <span>🔎</span>
-          <input type="text" placeholder="Talep ID veya kişi ara..." />
+        {SEARCHABLE_VIEWS.includes(activeView) && (
+          <div className="search-box">
+            <span>🔎</span>
+            <input
+              type="text"
+              placeholder="Talep ID veya kişi ara..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="icon-btn-wrap">
+          <div className="icon-btn" onClick={() => setShowNotif((s) => !s)}>
+            🔔
+            {notifications.length > 0 && <span className="badge-dot">{notifications.length}</span>}
+          </div>
+          {showNotif && (
+            <div className="dropdown show">
+              <div className="dropdown-head">Bildirimler</div>
+              {notifications.length === 0 && <div className="notif-item">Yeni bildirim yok</div>}
+              {notifications.map((n, i) => (
+                <div className="notif-item" key={i}>
+                  <div className={`n-dot ${n.cls}`}></div>
+                  <div><b>{n.title}</b>{n.desc}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="icon-btn">🔔</div>
-        <div className="icon-btn">🌙</div>
+
+        <div className="icon-btn" onClick={onToggleTheme}>
+          {theme === 'dark' ? '🌙' : '☀️'}
+        </div>
       </div>
     </div>
   );

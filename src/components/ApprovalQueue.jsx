@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import { DATA, RANGE_END, fmtDate } from '../data/dummyData';
 
-export default function ApprovalQueue() {
-  // Bu sayaç, mutasyon sonrası React'e "ekranı yeniden çiz" demek için var.
+export default function ApprovalQueue({ search }) {
   const [version, setVersion] = useState(0);
 
-  const items = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')
+  let items = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')
     .sort((a, b) => a.acilis - b.acilis);
+
+  if (search) {
+    const q = search.toLowerCase();
+    items = items.filter((r) => String(r.id).includes(q) || r.acanKisi.toLowerCase().includes(q));
+  }
 
   const breach = items.filter((r) => (RANGE_END - r.acilis) / 86400000 > 10).length;
 
   const approve = (idx) => {
-  const rec = DATA.find((r) => r.idx === idx);
-  rec.durum = 'Kapalı';
-  rec.lansman = rec.lansman || RANGE_END; // onaylanan talep artık tamamlanmış sayılır
-  setVersion((v) => v + 1); // React'e değişikliği haber ver
-};
+    const rec = DATA.find((r) => r.idx === idx);
+    rec.durum = 'Kapalı';
+    rec.lansman = rec.lansman || RANGE_END;
+    setVersion((v) => v + 1);
+  };
 
   const reject = (idx) => {
     const rec = DATA.find((r) => r.idx === idx);
