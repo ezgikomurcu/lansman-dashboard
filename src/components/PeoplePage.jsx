@@ -2,8 +2,14 @@ import { useState } from 'react';
 import { DATA, PEOPLE } from '../data/dummyData';
 import PersonModalChart from './charts/PersonModalChart';
 
-export default function PeoplePage() {
-  const [selected, setSelected] = useState(null); // hangi kişi seçili? (null = modal kapalı)
+export default function PeoplePage({ theme, search }) {
+  const [selected, setSelected] = useState(null);
+
+  let people = PEOPLE;
+  if (search) {
+    const q = search.toLowerCase();
+    people = people.filter((p) => p.toLowerCase().includes(q));
+  }
 
   return (
     <>
@@ -12,7 +18,8 @@ export default function PeoplePage() {
       </div>
 
       <div className="people-grid">
-        {PEOPLE.map((p) => {
+        {people.length === 0 && <div className="panel">Sonuç bulunamadı</div>}
+        {people.map((p) => {
           const rows = DATA.filter((r) => r.acanKisi === p);
           const launches = rows.filter((r) => r.lansman).length;
           const pending = rows.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor').length;
@@ -56,7 +63,7 @@ export default function PeoplePage() {
               </div>
             </div>
 
-            <PersonModalChart personName={selected} />
+            <PersonModalChart personName={selected} theme={theme} />
           </div>
         </div>
       )}

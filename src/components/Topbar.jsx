@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const PAGE_TITLES = {
   overview: 'Genel Bakış',
@@ -9,10 +9,21 @@ const PAGE_TITLES = {
   reports: 'Raporlar'
 };
 
-const SEARCHABLE_VIEWS = ['pending', 'launches'];
+const SEARCHABLE_VIEWS = ['pending', 'launches', 'people'];
 
 export default function Topbar({ activeView, search, onSearchChange, notifications, theme, onToggleTheme }) {
   const [showNotif, setShowNotif] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotif(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="topbar">
@@ -33,14 +44,17 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
           </div>
         )}
 
-        <div className="icon-btn-wrap">
+        <div className="icon-btn-wrap" ref={notifRef}>
           <div className="icon-btn" onClick={() => setShowNotif((s) => !s)}>
             🔔
             {notifications.length > 0 && <span className="badge-dot">{notifications.length}</span>}
           </div>
           {showNotif && (
             <div className="dropdown show">
-              <div className="dropdown-head">Bildirimler</div>
+              <div className="dropdown-head">
+                Bildirimler
+                <span className="dropdown-close" onClick={() => setShowNotif(false)}>✕</span>
+              </div>
               {notifications.length === 0 && <div className="notif-item">Yeni bildirim yok</div>}
               {notifications.map((n, i) => (
                 <div className="notif-item" key={i}>
@@ -53,7 +67,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
         </div>
 
         <div className="icon-btn" onClick={onToggleTheme}>
-          {theme === 'dark' ? '🌙' : '☀️'}
+          {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌸'}
         </div>
       </div>
     </div>

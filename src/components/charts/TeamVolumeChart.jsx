@@ -1,12 +1,14 @@
 import { Bar } from 'react-chartjs-2';
 import { DATA, TEAMS } from '../../data/dummyData';
+import { getColors } from '../../chartColors';
 
-export default function TeamVolumeChart() {
+export default function TeamVolumeChart({ theme }) {
+  const colors = getColors(theme);
   const volume = TEAMS.map((t) => DATA.filter((r) => r.ekip === t).length);
 
   const data = {
     labels: TEAMS.map((t) => t.replace('TEAM-K-BO-', '')),
-    datasets: [{ label: 'Talep', data: volume, backgroundColor: '#5AC8FA', borderRadius: 6 }]
+    datasets: [{ label: 'Talep', data: volume, backgroundColor: colors.secondary, borderRadius: 6 }]
   };
 
   const options = {

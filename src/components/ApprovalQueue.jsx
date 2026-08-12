@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { DATA, RANGE_END, fmtDate } from '../data/dummyData';
 
-export default function ApprovalQueue({ search }) {
-  const [version, setVersion] = useState(0);
-
+export default function ApprovalQueue({ search, onDataChange }) {
   let items = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')
     .sort((a, b) => a.acilis - b.acilis);
 
@@ -18,13 +15,13 @@ export default function ApprovalQueue({ search }) {
     const rec = DATA.find((r) => r.idx === idx);
     rec.durum = 'Kapalı';
     rec.lansman = rec.lansman || RANGE_END;
-    setVersion((v) => v + 1);
+    onDataChange();
   };
 
   const reject = (idx) => {
     const rec = DATA.find((r) => r.idx === idx);
     rec.durum = 'Reddedildi';
-    setVersion((v) => v + 1);
+    onDataChange();
   };
 
   return (

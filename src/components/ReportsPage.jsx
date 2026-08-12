@@ -23,7 +23,7 @@ function CompareCard({ label, cur, prev, sub }) {
   );
 }
 
-export default function ReportsPage() {
+export default function ReportsPage({ theme }) {
   const thisMonth = monthKey(RANGE_END);
   const lastMonthDate = new Date(RANGE_END.getFullYear(), RANGE_END.getMonth() - 1, 1);
   const lastMonth = monthKey(lastMonthDate);
@@ -65,7 +65,7 @@ export default function ReportsPage() {
         <CompareCard label="Kapanan Talep (Bu Ay)" cur={closedThis} prev={closedLast} sub="Geçen ay" />
       </div>
 
-      <CompareChart />
+      <CompareChart theme={theme} />
     </>
   );
 }

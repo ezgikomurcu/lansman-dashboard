@@ -11,7 +11,10 @@ import LansmanTrendChart from './charts/LansmanTrendChart';
 import PersonLaunchChart from './charts/PersonLaunchChart';
 import OpenedTrendChart from './charts/OpenedTrendChart';
 import RatioTrendChart from './charts/RatioTrendChart';
+import StatusDonutChart from './charts/StatusDonutChart';
+import TypeDonutChart from './charts/TypeDonutChart';
 import { DATA, RANGE_END } from '../data/dummyData';
+import ChatBot from './ChatBot';
 
 const QUICK_RANGES = [
   { key: 90, label: 'Son 90 gün' },
@@ -19,17 +22,14 @@ const QUICK_RANGES = [
   { key: 'all', label: 'Tüm zamanlar' }
 ];
 
-export default function Dashboard({ user, onLogout }) {
+
+export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
   const [activeView, setActiveView] = useState('overview');
   const [rangeKey, setRangeKey] = useState(365);
   const [search, setSearch] = useState('');
-  const [theme, setTheme] = useState('dark');
+  const [dataVersion, setDataVersion] = useState(0); // ← YENİ: veri değişince artan sayaç
 
-  // Tema her değiştiğinde <body>'ye 'light' class'ını ekle/çıkar.
-  // useEffect = "bir state değiştiğinde bunu otomatik çalıştır" demek.
-  useEffect(() => {
-    document.body.classList.toggle('light', theme === 'light');
-  }, [theme]);
+  const [navCollapsed, setNavCollapsed] = useState(false);
 
   const filteredData =
     rangeKey === 'all'
@@ -41,7 +41,6 @@ export default function Dashboard({ user, onLogout }) {
   const closed = filteredData.filter((r) => r.durum === 'Kapalı');
   const ratio = filteredData.length ? Math.round((closed.length / filteredData.length) * 100) : 0;
 
-  // ---- Bildirimler (tüm DATA üzerinden, dönem filtresinden bağımsız) ----
   const slaBreach = DATA.filter(
     (r) => (r.durum === 'Açık' || r.durum === 'Onay Bekleniyor') && (RANGE_END - r.acilis) / 86400000 > 10
   ).length;
@@ -54,8 +53,16 @@ export default function Dashboard({ user, onLogout }) {
   if (newThisWeek > 0) notifications.push({ cls: 'warn', title: `${newThisWeek} yeni talep açıldı`, desc: 'Son 7 gün içinde' });
 
   return (
-    <div id="app" className="show">
-      <Sidebar activeView={activeView} onChangeView={setActiveView} user={user} onLogout={onLogout} />
+    <div id="app" className={`show ${navCollapsed ? 'nav-collapsed' : ''}`}>
+      <Sidebar
+        activeView={activeView}
+        onChangeView={setActiveView}
+        user={user}
+        onLogout={onLogout}
+        collapsed={navCollapsed}
+        onToggleCollapse={() => setNavCollapsed((v) => !v)}
+      />
+
       <main className="main">
         <Topbar
           activeView={activeView}
@@ -63,7 +70,7 @@ export default function Dashboard({ user, onLogout }) {
           onSearchChange={setSearch}
           notifications={notifications}
           theme={theme}
-          onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+          onToggleTheme={onToggleTheme}
         />
 
         {activeView === 'overview' && (
@@ -84,15 +91,15 @@ export default function Dashboard({ user, onLogout }) {
 
         {activeView === 'overview' && (
           <div className="kpi-grid">
-            <KpiCard icon="🚀" iconBg="var(--teal-dim)" iconColor="var(--teal)"
+            <KpiCard 
               label="Toplam Lansman" value={launches.length}
               delta={`▲ ${launches.length} lansman tamamlandı`} />
-            <KpiCard icon="⏳" iconBg="var(--amber-dim)" iconColor="var(--amber)"
+            <KpiCard 
               label="Bekleyen Talep" value={pending.length}
               delta={`● ${filteredData.filter((r) => r.durum === 'Onay Bekleniyor').length} onay bekliyor`} />
-            <KpiCard icon="📥" iconBg="var(--violet-dim)" iconColor="var(--violet)"
+            <KpiCard 
               label="Açılan Talep" value={filteredData.length} delta="▲ seçili dönemde" />
-            <KpiCard icon="📊" iconBg="var(--coral-dim)" iconColor="var(--coral)"
+            <KpiCard 
               label="Açık / Kapalı Oranı" value={`${ratio}%`}
               delta={`${closed.length} kapalı / ${filteredData.length} toplam`} />
           </div>
@@ -101,22 +108,29 @@ export default function Dashboard({ user, onLogout }) {
         {activeView === 'overview' && (
           <>
             <div className="grid-2">
-              <LansmanTrendChart data={filteredData} />
-              <PersonLaunchChart data={filteredData} />
+              <LansmanTrendChart data={filteredData} theme={theme} />
+              <PersonLaunchChart data={filteredData} theme={theme} />
             </div>
             <div className="grid-2">
-              <OpenedTrendChart data={filteredData} />
-              <RatioTrendChart data={filteredData} />
+              <OpenedTrendChart data={filteredData} theme={theme} />
+              <RatioTrendChart data={filteredData} theme={theme} />
+            </div>
+            <div className="grid-2">
+              <StatusDonutChart data={filteredData} theme={theme} />
+              <TypeDonutChart data={filteredData} theme={theme} />
             </div>
           </>
         )}
 
-        {activeView === 'pending' && <ApprovalQueue search={search} />}
-        {activeView === 'people' && <PeoplePage />}
+        {activeView === 'pending' && (
+          <ApprovalQueue search={search} onDataChange={() => setDataVersion((v) => v + 1)} />
+        )}
+        {activeView === 'people' && <PeoplePage theme={theme} search={search} />}
         {activeView === 'launches' && <LaunchesPage search={search} />}
-        {activeView === 'teams' && <TeamsPage />}
-        {activeView === 'reports' && <ReportsPage />}
+        {activeView === 'teams' && <TeamsPage theme={theme} />}
+        {activeView === 'reports' && <ReportsPage theme={theme} />}
       </main>
+      <ChatBot data={filteredData} periodLabel={QUICK_RANGES.find(r => r.key === rangeKey)?.label} />
     </div>
   );
 }

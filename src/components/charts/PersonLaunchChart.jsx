@@ -1,7 +1,9 @@
 import { Bar } from 'react-chartjs-2';
 import { PEOPLE } from '../../data/dummyData';
+import { getColors } from '../../chartColors';
 
-export default function PersonLaunchChart({ data }) {
+export default function PersonLaunchChart({ data, theme }) {
+  const colors = getColors(theme);
   const launches = data.filter((r) => r.lansman);
   const counts = {};
   PEOPLE.forEach((p) => (counts[p] = 0));
@@ -10,7 +12,7 @@ export default function PersonLaunchChart({ data }) {
 
   const chartData = {
     labels: sorted.map((p) => p[0]),
-    datasets: [{ label: 'Lansman', data: sorted.map((p) => p[1]), backgroundColor: '#5AC8FA', borderRadius: 6 }]
+    datasets: [{ label: 'Lansman', data: sorted.map((p) => p[1]), backgroundColor: colors.secondary, borderRadius: 6 }]
   };
 
   const options = {

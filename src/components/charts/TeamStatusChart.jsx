@@ -1,7 +1,9 @@
 import { Bar } from 'react-chartjs-2';
 import { DATA, TEAMS } from '../../data/dummyData';
+import { getColors } from '../../chartColors';
 
-export default function TeamStatusChart() {
+export default function TeamStatusChart({ theme }) {
+  const colors = getColors(theme);
   const teamStatus = {};
   TEAMS.forEach((t) => (teamStatus[t] = { Açık: 0, 'Onay Bekleniyor': 0, Kapalı: 0 }));
   DATA.forEach((r) => {
@@ -11,9 +13,9 @@ export default function TeamStatusChart() {
   const data = {
     labels: TEAMS.map((t) => t.replace('TEAM-K-BO-', '')),
     datasets: [
-      { label: 'Açık', data: TEAMS.map((t) => teamStatus[t]['Açık']), backgroundColor: '#FF5C72', borderRadius: 5 },
-      { label: 'Onay Bekleniyor', data: TEAMS.map((t) => teamStatus[t]['Onay Bekleniyor']), backgroundColor: '#FFB020', borderRadius: 5 },
-      { label: 'Kapalı', data: TEAMS.map((t) => teamStatus[t]['Kapalı']), backgroundColor: '#FFD200', borderRadius: 5 }
+      { label: 'Açık', data: TEAMS.map((t) => teamStatus[t]['Açık']), backgroundColor: colors.coral, borderRadius: 5 },
+      { label: 'Onay Bekleniyor', data: TEAMS.map((t) => teamStatus[t]['Onay Bekleniyor']), backgroundColor: colors.amber, borderRadius: 5 },
+      { label: 'Kapalı', data: TEAMS.map((t) => teamStatus[t]['Kapalı']), backgroundColor: colors.primary, borderRadius: 5 }
     ]
   };
 

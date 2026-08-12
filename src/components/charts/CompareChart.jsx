@@ -1,15 +1,15 @@
 import { Bar } from 'react-chartjs-2';
 import { DATA, RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyData';
+import { getColors } from '../../chartColors';
 
-export default function CompareChart() {
+export default function CompareChart({ theme }) {
+  const colors = getColors(theme);
   const months = lastNMonths(6, RANGE_END);
-  const counts = months.map(
-    (mk) => DATA.filter((r) => r.lansman && monthKey(r.lansman) === mk).length
-  );
+  const counts = months.map((mk) => DATA.filter((r) => r.lansman && monthKey(r.lansman) === mk).length);
 
   const data = {
     labels: months.map(monthLabel),
-    datasets: [{ label: 'Lansman', data: counts, backgroundColor: '#FFD200', borderRadius: 6, maxBarThickness: 30 }]
+    datasets: [{ label: 'Lansman', data: counts, backgroundColor: colors.primary, borderRadius: 6, maxBarThickness: 30 }]
   };
 
   const options = {

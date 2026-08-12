@@ -1,0 +1,41 @@
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  host: 'localhost',
+  port: 5432,
+  user: 'postgres',
+  password: '1234',
+  database: 'lansman_db'
+});
+
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS requests (
+      id SERIAL PRIMARY KEY,
+      talep_id BIGINT NOT NULL,
+      acilis_tarihi TIMESTAMP NOT NULL,
+      acan_kisi TEXT NOT NULL,
+      analiz TEXT,
+      analiz_ikincigoz TEXT,
+      qa TEXT,
+      ekip TEXT,
+      tip TEXT,
+      aciklama TEXT,
+      durum TEXT NOT NULL,
+      lansman_tarihi TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'Analist'
+    )
+  `);
+
+  console.log('Veritabanı tabloları hazır ✅');
+}
+
+module.exports = { pool, initDb };

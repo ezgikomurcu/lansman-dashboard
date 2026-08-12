@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { key: 'reports', label: 'Raporlar' }
 ];
 
-export default function Sidebar({ activeView, onChangeView, user, onLogout }) {
+export default function Sidebar({ activeView, onChangeView, user, onLogout, collapsed, onToggleCollapse }) {
   const initials = user.username
     .split(/[.\s]/)
     .map((p) => p[0]?.toUpperCase())
@@ -16,10 +16,14 @@ export default function Sidebar({ activeView, onChangeView, user, onLogout }) {
 
   return (
     <aside className="sidebar">
+      <div className="sidebar-toggle" onClick={onToggleCollapse}>
+        {collapsed ? '›' : '‹'}
+      </div>
+
       <div className="brand">
         <div className="mark">t</div>
         <div>
-          <b>turkcell</b>
+          <b>Launchly</b>
           <small>C6 Lansman Kontrol Merkezi</small>
         </div>
       </div>
@@ -30,7 +34,7 @@ export default function Sidebar({ activeView, onChangeView, user, onLogout }) {
           className={`nav-item ${activeView === item.key ? 'active' : ''}`}
           onClick={() => onChangeView(item.key)}
         >
-          <span className="dot"></span> {item.label}
+          <span className="dot"></span> <span>{item.label}</span>
         </div>
       ))}
 
@@ -38,7 +42,6 @@ export default function Sidebar({ activeView, onChangeView, user, onLogout }) {
         <div className="avatar">{initials}</div>
         <div>
           <div className="u-name">{user.username}</div>
-          <div className="u-role">{user.role}</div>
         </div>
         <div className="logout-btn" onClick={onLogout}>Çıkış</div>
       </div>
