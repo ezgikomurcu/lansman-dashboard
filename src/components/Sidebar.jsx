@@ -21,10 +21,10 @@ export default function Sidebar({ activeView, onChangeView, user, onLogout, coll
       </div>
 
       <div className="brand">
-        <div className="mark">t</div>
+        <div className="mark"><img src="/logo.png" className="mark-img" alt="logo" /></div>
         <div>
           <b>Launchly</b>
-          <small>C6 Lansman Kontrol Merkezi</small>
+          <small>Lansman Kontrol Merkezi</small>
         </div>
       </div>
 

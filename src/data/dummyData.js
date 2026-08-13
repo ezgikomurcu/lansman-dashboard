@@ -1,81 +1,51 @@
-// ============ SABİT LİSTELER ============
+// ============ SABİT LİSTELER (arayüzde referans için) ============
 export const PEOPLE = [
   "Ayşe Kaya", "Mert Demir", "Zeynep Arslan", "Burak Yıldız",
   "Elif Şahin", "Cem Öztürk", "Deniz Aydın", "Selin Kurt"
 ];
 
-export const TEAMS = [
-  "TEAM-K-BO-SMARTCAN", "TEAM-K-BO-MMICING", "TEAM-K-BO-CASEBAN",
-  "TEAM-K-BO-DSS", "TEAM-K-BO-KANBANYA", "TEAM-K-BO-CARBON"
-];
+export let TEAMS = [];
 
-const TYPES = ["Kampanya", "Postpaid", "Servis"];
+export const API_URL = 'http://localhost:3000';
 
-const DESCS = [
-  "Tarife ücret revizyonu talebi",
-  "Yeni kampanya katılım kriteri tanımı",
-  "SMS bilgilendirme metni güncelleme",
-  "Kanal kapatma işlemi",
-  "Segment bazlı teklif güncellemesi",
-  "Portföy paket güncellemesi"
-];
+// ============ GERÇEK VERİ — artık backend'den geliyor ============
+export let DATA = [];
+export let RANGE_END = new Date();
 
-// ============ RASTGELE ÜRETİM YARDIMCILARI ============
-function seededRandom(seed) {
-  let s = seed;
-  return () => {
-    s = (s * 9301 + 49297) % 233280;
-    return s / 233280;
-  };
-}
-const rnd = seededRandom(42);
+export async function loadDataFromAPI() {
+  const [reqRes, teamsRes] = await Promise.all([
+    fetch(`${API_URL}/api/requests`),
+    fetch(`${API_URL}/api/teams`)
+  ]);
 
-function pick(arr) {
-  return arr[Math.floor(rnd() * arr.length)];
-}
+  if (!reqRes.ok) throw new Error('Backend’den talep verisi alınamadı (' + reqRes.status + ')');
+  if (!teamsRes.ok) throw new Error('Backend’den takım verisi alınamadı (' + teamsRes.status + ')');
 
-function randDate(start, end) {
-  return new Date(start.getTime() + rnd() * (end.getTime() - start.getTime()));
-}
+  const rows = await reqRes.json();
+  const teamRows = await teamsRes.json();
 
-// ============ VERİ ÜRETİMİ ============
-const RANGE_START = new Date(2023, 0, 1);
-export const RANGE_END = new Date(2026, 7, 7); // bugün
-
-export const DATA = [];
-for (let i = 0; i < 420; i++) {
-  const acilis = randDate(RANGE_START, RANGE_END);
-  const statusRoll = rnd();
-  let durum, lansman = null;
-
-  if (statusRoll < 0.62) {
-    durum = "Kapalı";
-    const lag = 4 + rnd() * 30;
-    const l = new Date(acilis.getTime() + lag * 86400000);
-    if (l <= RANGE_END) lansman = l;
-  } else if (statusRoll < 0.82) {
-    durum = "Onay Bekleniyor";
-  } else {
-    durum = "Açık";
-  }
-
-  DATA.push({
+  DATA = rows.map((r, i) => ({
     idx: i,
-    id: 10000000000 + Math.floor(rnd() * 99999),
-    acilis,
-    durum,
-    acanKisi: pick(PEOPLE),
-    analiz: pick(PEOPLE),
-    ikinciGoz: pick(PEOPLE),
-    qa: pick(PEOPLE),
-    ekip: pick(TEAMS),
-    tip: pick(TYPES),
-    aciklama: pick(DESCS),
-    lansman
-  });
+    dbId: r.id,
+    id: r.talep_id,
+    acilis: new Date(r.acilis_tarihi),
+    durum: r.durum,
+    acanKisi: r.acan_kisi,
+    analiz: r.analiz,
+    ikinciGoz: r.analiz_ikincigoz,
+    qa: r.qa,
+    ekip: r.ekip,
+    tip: r.tip,
+    aciklama: r.aciklama,
+    lansman: r.lansman_tarihi ? new Date(r.lansman_tarihi) : null
+  }));
+
+  TEAMS = teamRows.map((t) => t.code);
+
+  RANGE_END = new Date();
 }
 
-// ============ ORTAK YARDIMCI FONKSİYONLAR ============
+// ============ YARDIMCI FONKSİYONLAR (değişmedi) ============
 export function fmtDate(d) {
   return d.toISOString().slice(0, 10);
 }

@@ -117,7 +117,7 @@ export default function ChatBot({ data, periodLabel }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Merhaba! Ben Dashboard Asistanı 👋 Kişi, takım ya da trend hakkında soru sorabilirsin.' }
+    { from: 'bot', text: 'Merhaba! Ben Pulse 👋 Kişi, takım ya da trend hakkında soru sorabilirsin.' }
   ]);
 
   const send = () => {

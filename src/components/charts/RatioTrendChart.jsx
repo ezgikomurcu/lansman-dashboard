@@ -2,17 +2,18 @@ import { Line } from 'react-chartjs-2';
 import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 
-export default function RatioTrendChart({ data, theme }) {
+export default function RatioTrendChart({ data, theme, months = 12, endDate }) {
   const colors = getColors(theme);
-  const months = lastNMonths(12, RANGE_END);
-  const ratios = months.map((mk) => {
+  const end = endDate || RANGE_END;
+  const monthList = lastNMonths(months, end);
+  const ratios = monthList.map((mk) => {
     const inMonth = data.filter((r) => monthKey(r.acilis) === mk);
     const closed = inMonth.filter((r) => r.durum === 'Kapalı').length;
     return inMonth.length ? Math.round((closed / inMonth.length) * 100) : 0;
   });
 
   const chartData = {
-    labels: months.map(monthLabel),
+    labels: monthList.map(monthLabel),
     datasets: [{
       label: 'Kapanma Oranı %', data: ratios, borderColor: colors.primary,
       backgroundColor: colors.primary + '20', fill: true, tension: 0.35,

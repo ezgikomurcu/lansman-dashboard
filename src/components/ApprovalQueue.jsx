@@ -1,6 +1,15 @@
-import { DATA, RANGE_END, fmtDate } from '../data/dummyData';
+import { useState, useEffect } from 'react';
+import { DATA, RANGE_END, fmtDate, loadDataFromAPI, API_URL } from '../data/dummyData';
+import Pagination from './Pagination';
 
-export default function ApprovalQueue({ search, onDataChange }) {
+const PAGE_SIZE = 20;
+
+export default function ApprovalQueue({ search, onDataChange, onNotify }) {
+  const [loadingId, setLoadingId] = useState(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => { setPage(1); }, [search]);
+
   let items = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')
     .sort((a, b) => a.acilis - b.acilis);
 
@@ -10,18 +19,21 @@ export default function ApprovalQueue({ search, onDataChange }) {
   }
 
   const breach = items.filter((r) => (RANGE_END - r.acilis) / 86400000 > 10).length;
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const approve = (idx) => {
-    const rec = DATA.find((r) => r.idx === idx);
-    rec.durum = 'Kapalı';
-    rec.lansman = rec.lansman || RANGE_END;
-    onDataChange();
-  };
-
-  const reject = (idx) => {
-    const rec = DATA.find((r) => r.idx === idx);
-    rec.durum = 'Reddedildi';
-    onDataChange();
+  const doAction = async (dbId, action) => {
+    setLoadingId(dbId);
+    try {
+      const res = await fetch(`${API_URL}/api/requests/${dbId}/${action}`, { method: 'PATCH' });
+      if (!res.ok) throw new Error('Sunucu hatası');
+      await loadDataFromAPI();
+      onDataChange();
+      onNotify(action === 'approve' ? 'Talep onaylandı ✓' : 'Talep reddedildi', 'success');
+    } catch (err) {
+      onNotify('İşlem başarısız: ' + err.message, 'error');
+    }
+    setLoadingId(null);
   };
 
   return (
@@ -33,12 +45,13 @@ export default function ApprovalQueue({ search, onDataChange }) {
       </div>
 
       <div className="queue-list">
-        {items.length === 0 && <div className="panel">Bekleyen talep yok.</div>}
-        {items.map((r) => {
+        {pageItems.length === 0 && <div className="panel">Bekleyen talep yok.</div>}
+        {pageItems.map((r) => {
           const days = Math.round((RANGE_END - r.acilis) / 86400000);
           const isBreach = days > 10;
+          const busy = loadingId === r.dbId;
           return (
-            <div className="queue-row" key={r.idx}>
+            <div className="queue-row" key={r.dbId}>
               <div className="q-main">
                 <div className="q-id">#{r.id} · {r.ekip.replace('TEAM-K-BO-', '')}</div>
                 <div className="q-desc">{r.aciklama}</div>
@@ -48,13 +61,18 @@ export default function ApprovalQueue({ search, onDataChange }) {
                 </div>
               </div>
               <div className="q-actions">
-                <button className="btn small success" onClick={() => approve(r.idx)}>Onayla</button>
-                <button className="btn small danger" onClick={() => reject(r.idx)}>Reddet</button>
+                <button className="btn small success" disabled={busy} onClick={() => doAction(r.dbId, 'approve')}>
+                  {busy ? '...' : 'Onayla'}
+                </button>
+                <button className="btn small danger" disabled={busy} onClick={() => doAction(r.dbId, 'reject')}>
+                  {busy ? '...' : 'Reddet'}
+                </button>
               </div>
             </div>
           );
         })}
       </div>
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </>
   );
 }

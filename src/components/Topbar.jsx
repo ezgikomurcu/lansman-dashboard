@@ -34,7 +34,6 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
       <div className="topbar-actions">
         {SEARCHABLE_VIEWS.includes(activeView) && (
           <div className="search-box">
-            <span>🔎</span>
             <input
               type="text"
               placeholder="Talep ID veya kişi ara..."

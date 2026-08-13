@@ -2,13 +2,14 @@ import { Line } from 'react-chartjs-2';
 import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 
-export default function OpenedTrendChart({ data, theme }) {
+export default function OpenedTrendChart({ data, theme, months = 12, endDate }) {
   const colors = getColors(theme);
-  const months = lastNMonths(12, RANGE_END);
-  const counts = months.map((mk) => data.filter((r) => monthKey(r.acilis) === mk).length);
+  const end = endDate || RANGE_END;
+  const monthList = lastNMonths(months, end);
+  const counts = monthList.map((mk) => data.filter((r) => monthKey(r.acilis) === mk).length);
 
   const chartData = {
-    labels: months.map(monthLabel),
+    labels: monthList.map(monthLabel),
     datasets: [{
       label: 'Açılan Talep', data: counts, borderColor: colors.amber,
       backgroundColor: colors.amber + '26', fill: true, tension: 0.35,

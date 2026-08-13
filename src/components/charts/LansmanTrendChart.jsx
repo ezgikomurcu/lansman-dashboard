@@ -2,14 +2,15 @@ import { Bar } from 'react-chartjs-2';
 import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 
-export default function LansmanTrendChart({ data, theme }) {
+export default function LansmanTrendChart({ data, theme, months = 12, endDate }) {
   const colors = getColors(theme);
+  const end = endDate || RANGE_END;
   const launches = data.filter((r) => r.lansman);
-  const months = lastNMonths(12, RANGE_END);
-  const counts = months.map((mk) => launches.filter((r) => monthKey(r.lansman) === mk).length);
+  const monthList = lastNMonths(months, end);
+  const counts = monthList.map((mk) => launches.filter((r) => monthKey(r.lansman) === mk).length);
 
   const chartData = {
-    labels: months.map(monthLabel),
+    labels: monthList.map(monthLabel),
     datasets: [{ label: 'Lansman', data: counts, backgroundColor: colors.primary, borderRadius: 6, maxBarThickness: 26 }]
   };
 
