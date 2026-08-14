@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { BellIcon, MoonIcon, SunIcon, PaletteIcon, SearchIcon } from './Icons';
 
 const PAGE_TITLES = {
   overview: 'Genel Bakış',
@@ -34,6 +35,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
       <div className="topbar-actions">
         {SEARCHABLE_VIEWS.includes(activeView) && (
           <div className="search-box">
+            <SearchIcon />
             <input
               type="text"
               placeholder="Talep ID veya kişi ara..."
@@ -45,7 +47,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
 
         <div className="icon-btn-wrap" ref={notifRef}>
           <div className="icon-btn" onClick={() => setShowNotif((s) => !s)}>
-            🔔
+             <BellIcon />
             {notifications.length > 0 && <span className="badge-dot">{notifications.length}</span>}
           </div>
           {showNotif && (
@@ -66,7 +68,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
         </div>
 
         <div className="icon-btn" onClick={onToggleTheme}>
-          {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌸'}
+           {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : <PaletteIcon />}
         </div>
       </div>
     </div>

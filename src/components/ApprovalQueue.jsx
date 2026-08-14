@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { DATA, RANGE_END, fmtDate, loadDataFromAPI, API_URL } from '../data/dummyData';
 import Pagination from './Pagination';
+import SurecAdimiChart from './charts/SurecAdimiChart';
 
 const PAGE_SIZE = 20;
 
-export default function ApprovalQueue({ search, onDataChange, onNotify }) {
+export default function ApprovalQueue({ search, onDataChange, onNotify, theme }) {
   const [loadingId, setLoadingId] = useState(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => { setPage(1); }, [search]);
 
-  let items = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')
-    .sort((a, b) => a.acilis - b.acilis);
+  const activeAll = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor');
+
+  let items = activeAll.sort((a, b) => a.acilis - b.acilis);
 
   if (search) {
     const q = search.toLowerCase();
@@ -43,6 +45,8 @@ export default function ApprovalQueue({ search, onDataChange, onNotify }) {
           ? `⚠ ${breach} talep 10 günden uzun süredir bekliyor — öncelik ver.`
           : '✓ SLA süresini aşan talep yok.'}
       </div>
+
+      <SurecAdimiChart data={activeAll} theme={theme} />
 
       <div className="queue-list">
         {pageItems.length === 0 && <div className="panel">Bekleyen talep yok.</div>}

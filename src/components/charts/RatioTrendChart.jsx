@@ -17,12 +17,14 @@ export default function RatioTrendChart({ data, theme, months = 12, endDate }) {
     datasets: [{
       label: 'Kapanma Oranı %', data: ratios, borderColor: colors.primary,
       backgroundColor: colors.primary + '20', fill: true, tension: 0.35,
-      pointRadius: 3, pointBackgroundColor: colors.primary
+      pointRadius: 3, pointBackgroundColor: colors.primary,
+      clip: false,
     }]
   };
 
   const options = {
     plugins: { legend: { display: false } },
+    layout: { padding: { top: 8 } },
     scales: {
       x: { grid: { display: false } },
       y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 0, max: 100, ticks: { callback: (v) => v + '%' } }

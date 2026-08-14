@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { API_URL } from '../data/dummyData';
+import { MoonIcon, SunIcon, PaletteIcon } from './Icons';
 
 export default function Login({ onLogin, theme, onToggleTheme }) {
   const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'forgot' | 'reset'
@@ -132,12 +133,13 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
     setResetSuccess(false);
   };
 
-  const themeIcon = theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌸';
 
   return (
     <div id="loginScreen">
       <div className="login-card">
-        <div className="login-theme-btn" onClick={onToggleTheme}>{themeIcon}</div>
+        <div className="login-theme-btn" onClick={onToggleTheme}>
+          {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : <PaletteIcon />}
+        </div>
 
         <div className="login-brand">
           <div className="mark"><img src="/logo.png" className="mark-img" alt="logo" /></div>

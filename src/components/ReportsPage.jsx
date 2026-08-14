@@ -1,4 +1,5 @@
-import { DATA, RANGE_END, monthKey, fmtDate } from '../data/dummyData';
+import { useState } from 'react';
+import { DATA, RANGE_END, monthKey, monthLabel, fmtDate } from '../data/dummyData';
 import CompareChart from './charts/CompareChart';
 
 function pct(cur, prev) {
@@ -23,16 +24,42 @@ function CompareCard({ label, cur, prev, sub }) {
   );
 }
 
-export default function ReportsPage({ theme }) {
-  const thisMonth = monthKey(RANGE_END);
-  const lastMonthDate = new Date(RANGE_END.getFullYear(), RANGE_END.getMonth() - 1, 1);
-  const lastMonth = monthKey(lastMonthDate);
+export default function ReportsPage() {
+  // Verideki en eski aydan, bugüne kadar TÜM ayları (boş olanlar dahil) üret
+function monthsBetweenKeys(startKey, endKey) {
+  const [sy, sm] = startKey.split('-').map(Number);
+  const [ey, em] = endKey.split('-').map(Number);
+  const result = [];
+  let y = sy, m = sm;
+  while (y < ey || (y === ey && m <= em)) {
+    result.push(`${y}-${String(m).padStart(2, '0')}`);
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return result.reverse(); // en yeniden en eskiye
+}
 
-  const launchesThis = DATA.filter((r) => r.lansman && monthKey(r.lansman) === thisMonth).length;
+const acilisMonths = DATA.map((r) => monthKey(r.acilis)).sort();
+const currentMonth = monthKey(RANGE_END);
+const minMonth = acilisMonths[0] || currentMonth;
+const latestDataMonth = acilisMonths[acilisMonths.length - 1] || currentMonth;
+const maxMonth = latestDataMonth > currentMonth ? latestDataMonth : currentMonth;
+
+const availableMonths = monthsBetweenKeys(minMonth, maxMonth);
+const defaultMonth = currentMonth;
+
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
+  const [y, m] = selectedMonth.split('-').map(Number);
+  const lastMonthDate = new Date(y, m - 2, 1);
+  const lastMonth = monthKey(lastMonthDate);
+  const selectedEndDate = new Date(y, m - 1, 1);
+
+  const launchesThis = DATA.filter((r) => r.lansman && monthKey(r.lansman) === selectedMonth).length;
   const launchesLast = DATA.filter((r) => r.lansman && monthKey(r.lansman) === lastMonth).length;
-  const openedThis = DATA.filter((r) => monthKey(r.acilis) === thisMonth).length;
+  const openedThis = DATA.filter((r) => monthKey(r.acilis) === selectedMonth).length;
   const openedLast = DATA.filter((r) => monthKey(r.acilis) === lastMonth).length;
-  const closedThis = DATA.filter((r) => r.durum === 'Kapalı' && monthKey(r.acilis) === thisMonth).length;
+  const closedThis = DATA.filter((r) => r.durum === 'Kapalı' && monthKey(r.acilis) === selectedMonth).length;
   const closedLast = DATA.filter((r) => r.durum === 'Kapalı' && monthKey(r.acilis) === lastMonth).length;
 
   const exportCSV = () => {
@@ -55,17 +82,22 @@ export default function ReportsPage({ theme }) {
       <div className="page-head">
         <div className="subtitle">Dönem karşılaştırması ve dışa aktarım</div>
         <div className="ph-actions">
+          <select className="month-select" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+            {availableMonths.map((mk) => (
+              <option key={mk} value={mk}>{monthLabel(mk)}</option>
+            ))}
+          </select>
           <button className="btn primary" onClick={exportCSV}>⬇ Filtreli veriyi CSV indir</button>
         </div>
       </div>
 
       <div className="compare-grid">
-        <CompareCard label="Lansman (Bu Ay)" cur={launchesThis} prev={launchesLast} sub="Geçen ay" />
-        <CompareCard label="Açılan Talep (Bu Ay)" cur={openedThis} prev={openedLast} sub="Geçen ay" />
-        <CompareCard label="Kapanan Talep (Bu Ay)" cur={closedThis} prev={closedLast} sub="Geçen ay" />
+        <CompareCard label={`Lansman (${monthLabel(selectedMonth)})`} cur={launchesThis} prev={launchesLast} sub="Önceki ay" />
+        <CompareCard label={`Açılan Talep (${monthLabel(selectedMonth)})`} cur={openedThis} prev={openedLast} sub="Önceki ay" />
+        <CompareCard label={`Kapanan Talep (${monthLabel(selectedMonth)})`} cur={closedThis} prev={closedLast} sub="Önceki ay" />
       </div>
 
-      <CompareChart theme={theme} />
+      <CompareChart endDate={selectedEndDate} />
     </>
   );
 }

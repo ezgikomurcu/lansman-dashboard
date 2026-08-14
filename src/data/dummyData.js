@@ -37,7 +37,9 @@ export async function loadDataFromAPI() {
     ekip: r.ekip,
     tip: r.tip,
     aciklama: r.aciklama,
-    lansman: r.lansman_tarihi ? new Date(r.lansman_tarihi) : null
+    lansman: r.lansman_tarihi ? new Date(r.lansman_tarihi) : null,
+    altTip: r.alt_tip,
+    surecAdimi: r.surec_adimi
   }));
 
   TEAMS = teamRows.map((t) => t.code);

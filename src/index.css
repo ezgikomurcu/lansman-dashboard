@@ -101,7 +101,7 @@ a{color:inherit;text-decoration:none;}
 #app.show{display:grid;}
 .sidebar{
   background:var(--bg-2);border-right:1px solid var(--border);
-  padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+  padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-radius:0 20px 20px 0;
 }
 .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 24px;}
 .sidebar .brand .mark{width:32px;height:32px;border-radius:9px;background:var(--tc-yellow);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--tc-navy);}
@@ -443,7 +443,7 @@ body.custom-theme .login-card::before {
 .chatbot-input-row input:focus{outline:none;border-color:var(--teal);}
 .chatbot-input-row button{background:var(--tc-yellow);color:var(--tc-navy);border:none;border-radius:8px;padding:0 14px;font-weight:800;cursor:pointer;font-size:12px;}
 
-.mark-img{width:100%;height:100%;object-fit:contain;}
+.mark-img{width:110%;height:110%;object-fit:contain;}
 
 .custom-range-panel{
   position:absolute;top:100%;left:0;margin-top:8px;z-index:20;
@@ -468,3 +468,7 @@ body.custom-theme .login-card::before {
 .toast.success{border-color:var(--teal);color:var(--teal);}
 .toast.error{border-color:var(--coral);color:var(--coral);}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
+
+.panel.narrow{max-width:680px;margin:0 auto 20px auto;}
+
+.month-select{background:var(--bg-2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 12px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}

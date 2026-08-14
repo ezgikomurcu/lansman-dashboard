@@ -16,6 +16,8 @@ import TypeDonutChart from './charts/TypeDonutChart';
 import ChatBot from './ChatBot';
 import Toast from './Toast';
 import { DATA, RANGE_END } from '../data/dummyData';
+import AltTipChart from './charts/AltTipChart';
+import { CalendarIcon } from './Icons';
 
 const QUICK_RANGES = [
   { key: 90, label: 'Son 90 gün' },
@@ -132,8 +134,9 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
               <button
                 className={`qr-btn ${rangeKey === 'custom' ? 'active' : ''}`}
                 onClick={() => setShowCustomPicker((v) => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
               >
-                {customLabel}
+                <CalendarIcon /> {customLabel}
               </button>
             </div>
 
@@ -183,6 +186,7 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
               <StatusDonutChart data={filteredData} theme={theme} />
               <TypeDonutChart data={filteredData} theme={theme} />
             </div>
+            <AltTipChart data={filteredData} theme={theme} />
           </>
         )}
 
@@ -191,6 +195,7 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
             search={search}
             onDataChange={() => setDataVersion((v) => v + 1)}
             onNotify={notify}
+            theme={theme}
           />
         )}
         {activeView === 'people' && <PeoplePage theme={theme} search={search} />}

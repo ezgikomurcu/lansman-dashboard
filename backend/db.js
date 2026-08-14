@@ -39,6 +39,9 @@ async function initDb() {
   await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT');
   await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP');
 
+  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS alt_tip TEXT');
+  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS surec_adimi TEXT');
+
   await pool.query(`
   CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,

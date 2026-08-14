@@ -26,8 +26,8 @@ async function seed() {
   for (const row of rows) {
     await pool.query(
       `INSERT INTO requests
-        (talep_id, acilis_tarihi, acan_kisi, analiz, analiz_ikincigoz, qa, ekip, tip, aciklama, durum, lansman_tarihi)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        (talep_id, acilis_tarihi, acan_kisi, analiz, analiz_ikincigoz, qa, ekip, tip, aciklama, durum, lansman_tarihi, alt_tip, surec_adimi)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
       [
         row.TALEP_ID,
         row.AcilisTarihi,
@@ -39,7 +39,9 @@ async function seed() {
         row.TALEP_TIPI,
         row.TALEP_ACIKLAMA,
         row.DURUM_,
-        row.LANSMAN_TARIHI || null
+        row.LANSMAN_TARIHI || null,
+        row.Talep_Alt_Tipi,
+        row.SUREC_ADIM_BILGISI
       ]
     );
   }
