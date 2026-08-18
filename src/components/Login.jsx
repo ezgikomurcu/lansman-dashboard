@@ -143,7 +143,7 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
 
         <div className="login-brand">
           <div className="mark"><img src="/logo.png" className="mark-img" alt="logo" /></div>
-          <div className="name">Launchly<span>Lansman Kontrol Merkezi · Staj Projesi</span></div>
+          <div className="name">Launchly<span>Lansman Kontrol Merkezi</span></div>
         </div>
 
         {(mode === 'forgot' || mode === 'reset') && (
