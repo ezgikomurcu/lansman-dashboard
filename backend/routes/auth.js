@@ -12,9 +12,13 @@ router.post('/signup', async (req, res) => {
     if (!fullName || !username || !password) {
       return res.status(400).json({ error: 'Tüm alanları doldurmalısın.' });
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(username)) {
+      return res.status(400).json({ error: 'Geçerli bir e-posta adresi girmelisin.' });
+    }
     const existing = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Bu kullanıcı adı zaten alınmış.' });
+      return res.status(409).json({ error: 'Bu e-posta zaten kayıtlı.' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
@@ -37,16 +41,16 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({ error: 'Kullanıcı adı ve şifre gerekli.' });
+      return res.status(400).json({ error: 'E-posta ve şifre gerekli.' });
     }
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
+      return res.status(401).json({ error: 'E-posta veya şifre hatalı.' });
     }
     const user = result.rows[0];
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
+      return res.status(401).json({ error: 'E-posta veya şifre hatalı.' });
     }
     const token = jwt.sign(
       { userId: user.id, username: user.username },
@@ -63,11 +67,11 @@ router.post('/login', async (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   try {
     const { username } = req.body;
-    if (!username) return res.status(400).json({ error: 'Kullanıcı adı gerekli.' });
+    if (!username) return res.status(400).json({ error: 'E-posta gerekli.' });
 
     const result = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Bu kullanıcı adıyla bir hesap bulunamadı.' });
+      return res.status(404).json({ error: 'Bu e-posta ile bir hesap bulunamadı.' });
     }
 
     const token = crypto.randomBytes(20).toString('hex');

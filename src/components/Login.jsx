@@ -150,17 +150,6 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
           <div className="back-link" onClick={() => goTo('login')}>← Girişe dön</div>
         )}
 
-        {mode !== 'forgot' && mode !== 'reset' && (
-          <div className="mode-tabs">
-            <div className={`mode-tab ${mode === 'login' ? 'active' : ''}`} onClick={() => goTo('login')}>
-              Giriş Yap
-            </div>
-            <div className={`mode-tab ${mode === 'signup' ? 'active' : ''}`} onClick={() => goTo('signup')}>
-              Kayıt Ol
-            </div>
-          </div>
-        )}
-
         <h1>
           {mode === 'login' && 'Tekrar hoş geldin'}
           {mode === 'signup' && 'Hesap oluştur'}
@@ -177,8 +166,8 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
         {mode === 'login' && (
           <>
             <div className="field">
-              <label>Kullanıcı adı</label>
-              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Kullanıcı Adı" />
+              <label>E-posta</label>
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="ornek@sirket.com" />
             </div>
             <div className="field">
               <label>Şifre</label>
@@ -187,9 +176,14 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
             {loginError && <div className="field-error">{loginError}</div>}
             <div className="forgot-link" onClick={() => goTo('forgot')}>Şifremi unuttum</div>
             <button className="login-btn" onClick={handleLogin} disabled={busy}>
-              {busy ? 'Giriş yapılıyor...' : 'Panele Giriş Yap'}
+              {busy ? 'Giriş yapılıyor...' : 'Giriş Yap'}
             </button>
-            <div className="login-foot">Hesabın yok mu? Yukarıdan "Kayıt Ol"a tıkla.</div>
+            <div className="login-foot">
+              Hesabın yok mu?{' '}
+              <span style={{ color: 'var(--teal)', cursor: 'pointer', fontWeight: 700 }} onClick={() => goTo('signup')}>
+                Kayıt Ol
+              </span>
+            </div>
           </>
         )}
 
@@ -200,8 +194,8 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
               <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ad Soyad" />
             </div>
             <div className="field">
-              <label>Kullanıcı adı</label>
-              <input type="text" value={signupUsername} onChange={(e) => setSignupUsername(e.target.value)} placeholder="Kullanıcı Adı" />
+              <label>E-posta</label>
+              <input type="text" value={signupUsername} onChange={(e) => setSignupUsername(e.target.value)} placeholder="ornek@sirket.com" />
             </div>
             <div className="field">
               <label>Şifre</label>
@@ -218,7 +212,7 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
             <div className="login-foot">
               Zaten hesabın var mı?{' '}
               <span style={{ color: 'var(--teal)', cursor: 'pointer', fontWeight: 700 }} onClick={() => goTo('login')}>
-                Giriş yap
+                Giriş Yap
               </span>
             </div>
           </>
@@ -229,8 +223,8 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
             {!forgotSent ? (
               <>
                 <div className="field">
-                  <label>Kullanıcı adı</label>
-                  <input type="text" value={forgotId} onChange={(e) => setForgotId(e.target.value)} placeholder="Kullanıcı Adı" />
+                  <label>E-posta</label>
+                  <input type="text" value={forgotId} onChange={(e) => setForgotId(e.target.value)} placeholder="ornek@sirket.com" />
                 </div>
                 {forgotError && <div className="field-error">{forgotError}</div>}
                 <button className="login-btn" onClick={handleForgot} disabled={busy}>
