@@ -5,7 +5,7 @@ import SurecAdimiChart from './charts/SurecAdimiChart';
 
 const PAGE_SIZE = 20;
 
-export default function ApprovalQueue({ search, onDataChange, onNotify, theme }) {
+export default function ApprovalQueue({ search, onDataChange, onNotify, theme, user }) {
   const [loadingId, setLoadingId] = useState(null);
   const [page, setPage] = useState(1);
 
@@ -27,8 +27,12 @@ export default function ApprovalQueue({ search, onDataChange, onNotify, theme })
   const doAction = async (dbId, action) => {
     setLoadingId(dbId);
     try {
-      const res = await fetch(`${API_URL}/api/requests/${dbId}/${action}`, { method: 'PATCH' });
-      if (!res.ok) throw new Error('Sunucu hatası');
+      const res = await fetch(`${API_URL}/api/requests/${dbId}/${action}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${user?.token}` }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Sunucu hatası');
       await loadDataFromAPI();
       onDataChange();
       onNotify(action === 'approve' ? 'Talep onaylandı ✓' : 'Talep reddedildi', 'success');
@@ -57,7 +61,7 @@ export default function ApprovalQueue({ search, onDataChange, onNotify, theme })
           return (
             <div className="queue-row" key={r.dbId}>
               <div className="q-main">
-                <div className="q-id">#{r.id} · {r.ekip.replace('TEAM-K-BO-', '')}</div>
+                <div className="q-id">#{r.id} · {r.ekip}</div>
                 <div className="q-desc">{r.aciklama}</div>
                 <div className="q-meta">
                   {r.acanKisi} açtı · {fmtDate(r.acilis)} ·{' '}

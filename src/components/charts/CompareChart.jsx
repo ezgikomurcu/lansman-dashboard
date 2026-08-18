@@ -22,9 +22,9 @@ export default function CompareChart({ theme, endDate }) {
   };
 
   return (
-    <div className="panel">
+    <div className="panel narrow-left">
       <div className="panel-head"><h3>Seçili Ay Öncesi 6 Aylık Lansman Trendi</h3><span className="tag">Karşılaştırma</span></div>
-      <div className="chart-wrap tall"><Bar data={data} options={options} /></div>
+      <div className="chart-wrap"><Bar data={data} options={options} /></div>
     </div>
   );
 }

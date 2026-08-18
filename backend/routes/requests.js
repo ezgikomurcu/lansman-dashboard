@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
+const requireAuth = require('../middleware/auth');
 
 // GET /api/requests — tüm talepleri getir
 router.get('/', async (req, res) => {
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
 });
 
 // PATCH /api/requests/:id/approve — bir talebi onayla
-router.patch('/:id/approve', async (req, res) => {
+router.patch('/:id/approve', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
@@ -31,7 +32,7 @@ router.patch('/:id/approve', async (req, res) => {
 });
 
 // PATCH /api/requests/:id/reject — bir talebi reddet
-router.patch('/:id/reject', async (req, res) => {
+router.patch('/:id/reject', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(

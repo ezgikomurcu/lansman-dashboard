@@ -41,7 +41,7 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
       });
       const data = await res.json();
       if (!res.ok) setLoginError(data.error || 'Giriş başarısız.');
-      else onLogin({ username: data.user.username });
+      else onLogin({ username: data.user.username, token: data.token });
     } catch (err) {
       setLoginError('Backend’e bağlanılamadı.');
     }
@@ -67,7 +67,7 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
       });
       const data = await res.json();
       if (!res.ok) setSignupError(data.error || 'Kayıt başarısız.');
-      else onLogin({ username: data.user.username });
+      else onLogin({ username: data.user.username, token: data.token });
     } catch (err) {
       setSignupError('Backend’e bağlanılamadı.');
     }

@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { pool } = require('../db');
+const jwt = require('jsonwebtoken');
 
 // POST /api/signup
 router.post('/signup', async (req, res) => {
@@ -20,7 +21,12 @@ router.post('/signup', async (req, res) => {
       'INSERT INTO users (username, password_hash, full_name) VALUES ($1, $2, $3) RETURNING id, username, full_name',
       [username, passwordHash, fullName]
     );
-    res.json({ user: result.rows[0] });
+    const token = jwt.sign(
+      { userId: result.rows[0].id, username: result.rows[0].username },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    res.json({ user: result.rows[0], token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -42,7 +48,12 @@ router.post('/login', async (req, res) => {
     if (!match) {
       return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
     }
-    res.json({ user: { id: user.id, username: user.username, full_name: user.full_name } });
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    res.json({ user: { id: user.id, username: user.username, full_name: user.full_name }, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

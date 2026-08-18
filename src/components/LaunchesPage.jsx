@@ -96,7 +96,7 @@ export default function LaunchesPage({ search }) {
                   <td>{r.id}</td>
                   <td>{fmtDate(r.lansman)}</td>
                   <td className="name">{r.acanKisi}</td>
-                  <td>{r.ekip.replace('TEAM-K-BO-', '')}</td>
+                  <td>{r.ekip}</td>
                   <td>{r.tip}</td>
                   <td>{r.days}</td>
                 </tr>

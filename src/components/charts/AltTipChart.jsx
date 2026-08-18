@@ -25,7 +25,7 @@ export default function AltTipChart({ data, theme }) {
   };
 
   return (
-    <div className="panel narrow">
+    <div className="panel narrow-left">
       <div className="panel-head"><h3>Alt Tip Dağılımı</h3><span className="tag">Tüm talepler</span></div>
       <div className="chart-wrap tall"><Bar data={chartData} options={options} /></div>
     </div>

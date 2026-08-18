@@ -28,11 +28,11 @@ function levenshtein(a, b) {
 
 function fuzzyHas(words, target) {
   if (target.length <= 2) {
-    return words.some((w) => w === target); // çok kısa hedefler sadece birebir eşleşsin
+    return words.some((w) => w === target);
   }
   const maxDist = target.length <= 4 ? 1 : target.length <= 7 ? 2 : 3;
   return words.some((w) => {
-    if (w.length <= 2) return w === target; // çok kısa soru kelimeleri de birebir olmalı
+    if (w.length <= 2) return w === target;
     return w.includes(target) || target.includes(w) || levenshtein(w, target) <= maxDist;
   });
 }
@@ -44,28 +44,40 @@ function findPerson(words) {
   });
 }
 
+// ---- Takım eşleştirmesi art\u0131k \u00e7ok daha SIKI: sadece tam ya da 1 harf farkla eşleşir ----
 function findTeam(words) {
   return TEAMS.find((t) => {
     const short = normalize(t.replace('TEAM-K-BO-', '').replace('TEAM-BO-FT-', ''));
-    return fuzzyHas(words, short);
+    return words.some((w) => w === short || (w.length > 4 && levenshtein(w, short) <= 1));
   });
 }
 
-// ---- Alt tip / süreç adımı, veriden dinamik olarak bulunuyor (sabit liste değil) ----
+// ---- Alt tip / süreç adımı: birden fazla kelimenin ÖRTÜŞME ORANINA bakıyor, en iyi eşleşmeyi seçiyor ----
+function findBestPhraseMatch(words, phrases) {
+  let best = null;
+  let bestScore = 0;
+  phrases.forEach((phrase) => {
+    const parts = normalize(phrase).split(' ').filter((p) => p.length > 3);
+    if (parts.length === 0) return;
+    const matchedCount = parts.filter((part) => fuzzyHas(words, part)).length;
+    const score = matchedCount / parts.length;
+    if (matchedCount >= 1 && score > bestScore) {
+      bestScore = score;
+      best = phrase;
+    }
+  });
+  // en az yarısı örtüşmeli (tek kelimelik ifadelerde o tek kelime yeterli)
+  return bestScore >= 0.5 ? best : null;
+}
+
 function findAltTip(words, data) {
   const uniqueTypes = [...new Set(data.map((r) => r.altTip).filter(Boolean))];
-  return uniqueTypes.find((t) => {
-    const parts = normalize(t).split(' ').filter((p) => p.length > 3);
-    return parts.some((part) => fuzzyHas(words, part));
-  });
+  return findBestPhraseMatch(words, uniqueTypes);
 }
 
 function findSurecAdimi(words, data) {
   const uniqueSteps = [...new Set(data.map((r) => r.surecAdimi).filter(Boolean))];
-  return uniqueSteps.find((s) => {
-    const parts = normalize(s).split(' ').filter((p) => p.length > 3);
-    return parts.some((part) => fuzzyHas(words, part));
-  });
+  return findBestPhraseMatch(words, uniqueSteps);
 }
 
 function answer(question, data, periodLabel) {
@@ -75,7 +87,6 @@ function answer(question, data, periodLabel) {
   const closed = data.filter((r) => r.durum === 'Kapalı');
   const slaBreach = pending.filter((r) => (RANGE_END - r.acilis) / 86400000 > 10);
 
-  // ---- Belirli bir talep ID'si soruluyorsa ----
   const idMatch = question.match(/\d{6,}/);
   if (idMatch) {
     const found = data.find((r) => String(r.id) === idMatch[0]);
@@ -85,7 +96,19 @@ function answer(question, data, periodLabel) {
     return `#${idMatch[0]} numaralı talebi seçili dönemde bulamadım — farklı bir dönem seçili olabilir.`;
   }
 
-  // ---- Kişi bazlı sorular ----
+  // ---- Alt tip sorusu ÖNCE kontrol ediliyor (takım/kişiden önce, çünkü daha spesifik) ----
+  const altTip = findAltTip(words, data);
+  if (altTip) {
+    const count = data.filter((r) => r.altTip === altTip).length;
+    return `"${altTip}" tipinde ${periodLabel} döneminde ${count} talep var.`;
+  }
+
+  const surecAdimi = findSurecAdimi(words, data);
+  if (surecAdimi) {
+    const count = data.filter((r) => r.surecAdimi === surecAdimi).length;
+    return `"${surecAdimi}" aşamasında ${periodLabel} döneminde ${count} talep var.`;
+  }
+
   const person = findPerson(words);
   if (person) {
     const rows = data.filter((r) => r.acanKisi === person);
@@ -94,24 +117,14 @@ function answer(question, data, periodLabel) {
     return `${person}: ${periodLabel} döneminde ${rows.length} talep açtı, ${pLaunch} tanesi lansmana çıktı, ${pPending} tanesi hâlâ bekliyor.`;
   }
 
-  // ---- Takım bazlı sorular ----
   const team = findTeam(words);
   if (team) {
     const rows = data.filter((r) => r.ekip === team);
     const tClosed = rows.filter((r) => r.durum === 'Kapalı').length;
     const tPending = rows.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor').length;
-    const shortName = team.replace('TEAM-K-BO-', '').replace('TEAM-BO-FT-', '');
-    return `${shortName}: ${periodLabel} döneminde ${rows.length} talep, ${tClosed} kapalı, ${tPending} bekliyor.`;
+    return `${team}: ${periodLabel} döneminde ${rows.length} talep, ${tClosed} kapalı, ${tPending} bekliyor.`;
   }
 
-  // ---- Alt tip sorusu (belirli bir tip ismi geçiyorsa) ----
-  const altTip = findAltTip(words, data);
-  if (altTip) {
-    const count = data.filter((r) => r.altTip === altTip).length;
-    return `"${altTip}" tipinde ${periodLabel} döneminde ${count} talep var.`;
-  }
-
-  // ---- En çok görülen alt tip ----
   if (fuzzyHas(words, 'tip') && (fuzzyHas(words, 'cok') || fuzzyHas(words, 'hangi'))) {
     const counts = {};
     data.forEach((r) => { const k = r.altTip || 'Diğer'; counts[k] = (counts[k] || 0) + 1; });
@@ -119,14 +132,6 @@ function answer(question, data, periodLabel) {
     if (top) return `${periodLabel} döneminde en çok görülen alt tip: "${top[0]}" (${top[1]} talep).`;
   }
 
-  // ---- Belirli bir süreç adımı sorusu ----
-  const surecAdimi = findSurecAdimi(words, data);
-  if (surecAdimi) {
-    const count = data.filter((r) => r.surecAdimi === surecAdimi).length;
-    return `"${surecAdimi}" aşamasında ${periodLabel} döneminde ${count} talep var.`;
-  }
-
-  // ---- Darboğaz / en yoğun aşama sorusu ----
   if ((fuzzyHas(words, 'asama') || fuzzyHas(words, 'adim') || fuzzyHas(words, 'tikan')) && (fuzzyHas(words, 'cok') || fuzzyHas(words, 'birik') || fuzzyHas(words, 'nerede'))) {
     const active = data.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor');
     const counts = {};
@@ -135,7 +140,6 @@ function answer(question, data, periodLabel) {
     if (top) return `Şu an en çok talep "${top[0]}" aşamasında birikmiş (${top[1]} talep) — muhtemel darboğaz burası.`;
   }
 
-  // ---- Ortalama süreç süresi ----
   if (fuzzyHas(words, 'ortalama') && (fuzzyHas(words, 'sure') || fuzzyHas(words, 'gun'))) {
     if (launches.length) {
       const avg = Math.round(launches.reduce((sum, r) => sum + (r.lansman - r.acilis) / 86400000, 0) / launches.length);
@@ -143,15 +147,29 @@ function answer(question, data, periodLabel) {
     }
   }
 
-  // ---- En çok lansman yapan takım ----
   if (fuzzyHas(words, 'takim') && fuzzyHas(words, 'cok')) {
     const counts = {};
     launches.forEach((r) => { counts[r.ekip] = (counts[r.ekip] || 0) + 1; });
     const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-    if (top) return `${periodLabel} döneminde en çok lansman yapan takım: ${top[0].replace('TEAM-K-BO-', '').replace('TEAM-BO-FT-', '')} (${top[1]} lansman).`;
+    if (top) return `${periodLabel} döneminde en çok lansman yapan takım: ${top[0]} (${top[1]} lansman).`;
   }
 
-  // ---- Trend / yorum soruları ----
+  if (fuzzyHas(words, 'ay') && fuzzyHas(words, 'lansman')) {
+    const monthCounts = {};
+    data.forEach((r) => {
+      if (r.lansman) {
+        const mk = monthKey(r.lansman);
+        monthCounts[mk] = (monthCounts[mk] || 0) + 1;
+      }
+    });
+    const entries = Object.entries(monthCounts);
+    if (entries.length === 0) {
+      return `${periodLabel} döneminde hiç lansman yok, en yüksek ayı bulamadım.`;
+    }
+    const top = entries.sort((a, b) => b[1] - a[1])[0];
+    return `${periodLabel} döneminde en çok lansman ${monthLabel(top[0])} ayında oldu (${top[1]} lansman).`;
+  }
+
   if (fuzzyHas(words, 'trend') || fuzzyHas(words, 'yorum') || (fuzzyHas(words, 'en') && (fuzzyHas(words, 'yuksek') || fuzzyHas(words, 'dusuk')))) {
     const monthCounts = {};
     data.forEach((r) => {
@@ -179,22 +197,6 @@ function answer(question, data, periodLabel) {
   if (fuzzyHas(words, 'lansman') && (fuzzyHas(words, 'kac') || fuzzyHas(words, 'toplam'))) {
     return `${periodLabel} döneminde ${launches.length} lansman tamamlandı.`;
   }
-  // ---- "En çok lansman olan AY hangisi" sorusu (kişi sorusundan ÖNCE kontrol edilmeli) ----
-  if (fuzzyHas(words, 'ay') && fuzzyHas(words, 'lansman')) {
-    const monthCounts = {};
-    data.forEach((r) => {
-      if (r.lansman) {
-        const mk = monthKey(r.lansman);
-        monthCounts[mk] = (monthCounts[mk] || 0) + 1;
-      }
-    });
-    const entries = Object.entries(monthCounts);
-    if (entries.length === 0) {
-      return `${periodLabel} döneminde hiç lansman yok, en yüksek ayı bulamadım.`;
-    }
-    const top = entries.sort((a, b) => b[1] - a[1])[0];
-    return `${periodLabel} döneminde en çok lansman ${monthLabel(top[0])} ayında oldu (${top[1]} lansman).`;
-  }
   if (fuzzyHas(words, 'cok') && fuzzyHas(words, 'lansman')) {
     const counts = {};
     PEOPLE.forEach((p) => (counts[p] = 0));
@@ -215,14 +217,14 @@ function answer(question, data, periodLabel) {
     return `${periodLabel} döneminde toplam ${data.length} talep kayıtlı.`;
   }
 
-  return 'Bunu tam anlayamadım 🤔 Deneyebileceğin sorular: "10000004011 nedir", "Ayşe kaç lansman yaptı?", "en çok görülen tip ne?", "hangi aşamada birikme var?", "ortalama süre ne kadar?", "en çok lansman yapan takım hangisi?", "trend nasıl?"';
+  return 'Bunu tam anlayamadım 🤔 Deneyebileceğin sorular: "10000004011 nedir", "Ayşe kaç lansman yaptı?", "Kampanyanın Kanala Kapatılması kaç talep?", "hangi aşamada birikme var?", "ortalama süre ne kadar?", "en çok lansman yapan takım hangisi?"';
 }
 
 export default function ChatBot({ data, periodLabel }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Merhaba! Ben Dashboard Asistanı 👋 Kişi, takım, alt tip, süreç aşaması ya da belirli bir talep ID\'si hakkında soru sorabilirsin.' }
+    { from: 'bot', text: 'Merhaba! Ben Pulse 👋 Kişi, takım, alt tip, süreç aşaması ya da belirli bir talep ID\'si hakkında soru sorabilirsin.' }
   ]);
 
   const send = () => {
@@ -246,7 +248,7 @@ export default function ChatBot({ data, periodLabel }) {
         <div className="chatbot-panel">
           <div className="chatbot-head">
             Dashboard Asistanı · {periodLabel}
-            <span style={{ cursor: 'pointer', color: 'var(--text-dim)' }} onClick={() => setOpen(false)}>✕</span>
+            <span style={{ cursor: 'pointer', color: 'var(--text-dim)', display: 'flex' }} onClick={() => setOpen(false)}><CloseIcon /></span>
           </div>
           <div className="chatbot-messages">
             {messages.map((m, i) => (

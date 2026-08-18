@@ -7,7 +7,7 @@ export default function TeamVolumeChart({ theme }) {
   const volume = TEAMS.map((t) => DATA.filter((r) => r.ekip === t).length);
 
   const data = {
-    labels: TEAMS.map((t) => t.replace('TEAM-K-BO-', '')),
+    labels: TEAMS,
     datasets: [{ label: 'Talep', data: volume, backgroundColor: colors.secondary, borderRadius: 6 }]
   };
 

@@ -15,9 +15,9 @@ import StatusDonutChart from './charts/StatusDonutChart';
 import TypeDonutChart from './charts/TypeDonutChart';
 import ChatBot from './ChatBot';
 import Toast from './Toast';
-import { DATA, RANGE_END } from '../data/dummyData';
 import AltTipChart from './charts/AltTipChart';
 import { CalendarIcon } from './Icons';
+import { DATA, RANGE_END, monthKey } from '../data/dummyData';
 
 const QUICK_RANGES = [
   { key: 90, label: 'Son 90 gün' },
@@ -32,6 +32,7 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
   const [dataVersion, setDataVersion] = useState(0);
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [toast, setToast] = useState(null);
+  const [reportMonth, setReportMonth] = useState(monthKey(RANGE_END));
 
   const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [customStart, setCustomStart] = useState('');
@@ -196,12 +197,15 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
             onDataChange={() => setDataVersion((v) => v + 1)}
             onNotify={notify}
             theme={theme}
+            user={user}
           />
         )}
         {activeView === 'people' && <PeoplePage theme={theme} search={search} />}
         {activeView === 'launches' && <LaunchesPage search={search} />}
         {activeView === 'teams' && <TeamsPage theme={theme} />}
-        {activeView === 'reports' && <ReportsPage theme={theme} />}
+        {activeView === 'reports' && (
+          <ReportsPage selectedMonth={reportMonth} onMonthChange={setReportMonth} />
+        )}
       </main>
       <ChatBot data={filteredData} periodLabel={rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label} />
       <Toast toast={toast} />

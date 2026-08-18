@@ -11,7 +11,7 @@ export default function TeamStatusChart({ theme }) {
   });
 
   const data = {
-    labels: TEAMS.map((t) => t.replace('TEAM-K-BO-', '')),
+    labels: TEAMS,
     datasets: [
       { label: 'Açık', data: TEAMS.map((t) => teamStatus[t]['Açık']), backgroundColor: colors.coral, borderRadius: 5 },
       { label: 'Onay Bekleniyor', data: TEAMS.map((t) => teamStatus[t]['Onay Bekleniyor']), backgroundColor: colors.amber, borderRadius: 5 },
