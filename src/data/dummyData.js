@@ -6,7 +6,11 @@ export const PEOPLE = [
 
 export let TEAMS = [];
 
-export const API_URL = 'http://localhost:3000';
+// Vercel'de frontend ve /api/* aynı domainden servis edildiği için prod'da
+// boş string (aynı origin) yeterli. VITE_API_URL set edilirse (örn. backend
+// ayrı bir domainde çalışıyorsa) o değer önceliklidir. Yerelde ayrı portlarda
+// çalıştığımız için (5173/3000) geliştirmede localhost:3000'e düşer.
+export const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3000');
 
 // ============ GERÇEK VERİ — artık backend'den geliyor ============
 export let DATA = [];

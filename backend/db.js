@@ -2,13 +2,23 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+// DATABASE_URL varsa (Neon/Vercel gibi ortamlarda) onu kullan — Neon SSL zorunlu
+// kılar. Yoksa yerel geliştirmedeki eski DB_HOST/DB_USER/... değişkenlerine düş,
+// böylece mevcut yerel .env hiç değişmeden çalışmaya devam eder. Serverless'ta
+// her cold start kendi küçük havuzunu açar, bu yüzden max düşük tutuluyor.
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 3
+    })
+  : new Pool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME
+    });
 
 async function initDb() {
   await pool.query(`
