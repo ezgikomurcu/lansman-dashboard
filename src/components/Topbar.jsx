@@ -10,8 +10,6 @@ const PAGE_TITLES = {
   reports: 'Raporlar'
 };
 
-// Topbar'daki her sayfada aynı "Tüm ekip · seçili dönem" yazıyordu — Lansmanlar/
-// Raporlar gibi dönem seçicisi olmayan sayfalarda bu doğrudan yanlış bilgiydi.
 const PAGE_SUBTITLES = {
   overview: 'Tüm ekip · seçili dönem',
   launches: 'Lansmanı tamamlanan talepler',
@@ -88,7 +86,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
         </div>
 
         <button type="button" className="icon-btn" onClick={onToggleTheme} aria-label="Temayı değiştir">
-          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
         </button>
       </div>
     </div>

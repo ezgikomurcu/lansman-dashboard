@@ -44,6 +44,10 @@ export default function ApprovalQueue({ search, onDataChange, onNotify, user }) 
 
   return (
     <>
+      <div className="page-head">
+        <div className="subtitle">Onay bekleyen açık talepleri yönet</div>
+      </div>
+
       <div className="sla-banner">
         {breach > 0
           ? `⚠ ${breach} talep 10 günden uzun süredir bekliyor — öncelik ver.`

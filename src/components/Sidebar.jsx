@@ -22,12 +22,9 @@ export default function Sidebar({ activeView, onChangeView, user, onLogout, coll
     <aside className="sidebar">
       <div className="brand">
         <button type="button" className="brand-link" onClick={() => onChangeView('overview')} aria-label="Ana sayfaya dön">
-          <div className="mark">
-            <img src="/logo.png" className="mark-img" alt="logo" />
-          </div>
-          <div>
-            <b>Launchly</b>
-            <small>Lansman Kontrol Merkezi</small>
+          <div className="brand-logo-wrap">
+            <img src="/sidebar_logo.png" className="brand-logo-img brand-logo-full" alt="Launchly" />
+            <img src="/sidebar_kucuk_logo.png" className="brand-logo-img brand-logo-icon" alt="Launchly" />
           </div>
         </button>
         <button

@@ -133,6 +133,12 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
         />
 
         {activeView === 'overview' && (
+          <div className="page-head">
+            <div className="subtitle">Talep hacmi, lansman trendi ve durum dağılımına göz at</div>
+          </div>
+        )}
+
+        {activeView === 'overview' && (
           <div className="filters" style={{ position: 'relative' }}>
             <div className="quick-range">
               {QUICK_RANGES.map((r) => (

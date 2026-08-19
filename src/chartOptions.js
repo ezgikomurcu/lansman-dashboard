@@ -53,12 +53,12 @@ export const donutCenterTextPlugin = {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = "800 24px 'Manrope', sans-serif";
+    ctx.font = "800 28px 'Manrope', sans-serif";
     ctx.fillStyle = opts.color || '#000';
-    ctx.fillText(String(opts.total), cx, cy - 9);
-    ctx.font = "700 10px 'Manrope', sans-serif";
+    ctx.fillText(String(opts.total), cx, cy - 10);
+    ctx.font = "700 11px 'Manrope', sans-serif";
     ctx.fillStyle = opts.subColor || '#888';
-    ctx.fillText(opts.label || 'toplam', cx, cy + 11);
+    ctx.fillText(opts.label || 'toplam', cx, cy + 13);
     ctx.restore();
   }
 };
@@ -67,10 +67,17 @@ export function donutOptions({ total, color, subColor } = {}) {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    // hoverOffset ile dilim hoverda dışa doğru büyüyor; canvas'ın kendi
+    // sınırına kadar boşluksuz çizildiğinde bu büyüme kenardan taşıp
+    // kırpılıyordu (canvas kendi dışına çizemez). Layout padding, büyüme
+    // payını canvas'ın içine, dolgu alanına ayırıyor.
+    layout: { padding: 8 },
     plugins: {
       legend: { display: false },
       centerText: { total, color, subColor, label: 'toplam' },
       tooltip: {
+        padding: 8,
+        bodyFont: { size: 11 },
         callbacks: {
           label: (ctx) => {
             const value = ctx.parsed;

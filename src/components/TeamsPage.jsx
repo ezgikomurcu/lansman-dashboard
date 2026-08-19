@@ -5,7 +5,7 @@ export default function TeamsPage() {
   return (
     <>
       <div className="page-head">
-        <div className="subtitle">Takımlara göre talep hacmi ve durum dağılımı</div>
+        <div className="subtitle">Takım bazlı hacim ve duruma göz at</div>
       </div>
       <div className="grid-2">
         <TeamVolumeChart />

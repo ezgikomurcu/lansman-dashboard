@@ -310,7 +310,7 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
   return (
     <>
       <div className="page-head">
-        <div className="subtitle">Dönem karşılaştırması ve dışa aktarım</div>
+        <div className="subtitle">Aylık karşılaştırmaya göz at, raporu dışa aktar</div>
         <div className="ph-actions" style={{ alignItems: 'center' }}>
           <label htmlFor="report-month" style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 700 }}>Rapor Dönemi:</label>
           <select id="report-month" className="month-select" value={selectedMonth} onChange={(e) => onMonthChange(e.target.value)}>

@@ -84,7 +84,7 @@ export default function LaunchesPage({ search }) {
   return (
     <>
       <div className="page-head">
-        <div className="subtitle">Sütun başlığına tıklayarak sırala, satıra tıklayarak zaman çizelgesini gör</div>
+        <div className="subtitle">Tamamlanan lansmanlara göz at</div>
         <div className="ph-actions">
           <button className="btn primary" onClick={exportCSV}>⬇ CSV indir</button>
         </div>
@@ -98,7 +98,10 @@ export default function LaunchesPage({ search }) {
                 {COLUMNS.map((c) => (
                   <th key={c.key} aria-sort={sortBy === c.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                     <button type="button" className="th-sort-btn" onClick={() => toggleSort(c.key)}>
-                      {c.label} {sortBy === c.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                      {c.label}
+                      <span className={`sort-icon ${sortBy === c.key ? 'active' : ''}`}>
+                        {sortBy === c.key ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                      </span>
                     </button>
                   </th>
                 ))}

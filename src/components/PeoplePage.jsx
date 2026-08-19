@@ -62,7 +62,7 @@ export default function PeoplePage({ search }) {
   return (
     <>
       <div className="page-head">
-        <div className="subtitle">Bir kişiye tıklayarak detaylı performans profilini gör</div>
+        <div className="subtitle">Kişi bazlı performansa göz at</div>
       </div>
 
       <div className="filters" style={{ position: 'relative' }}>

@@ -136,17 +136,16 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
   return (
     <div id="loginScreen">
       <div className="login-split-left">
-        <img src="/login-image2.png" alt="" className="login-split-img" />
+        <img src="/login_sol_logo.png" alt="" className="login-split-img" />
       </div>
       <div className="login-split-right">
         <div className="login-card">
           <button type="button" className="login-theme-btn" onClick={onToggleTheme} aria-label="Temayı değiştir">
-            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
           </button>
 
           <div className="login-brand">
-            <div className="mark"><img src="/logo.png" className="mark-img" alt="" /></div>
-            <div className="name">Launchly<span>Lansman Kontrol Merkezi</span></div>
+            <img src="/login_logo.png" className="login-logo-img" alt="Launchly — Fikirden lansmana, her adımda yanındayız." />
           </div>
 
           {(mode === 'forgot' || mode === 'reset') && (
