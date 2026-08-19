@@ -21,6 +21,9 @@ const pool = process.env.DATABASE_URL
     });
 
 async function initDb() {
+  // Hepsi tek pool.query() çağrısında (parametresiz sorgular node-postgres'te
+  // ";" ile ayrılmış birden fazla komutu TEK network round-trip'te çalıştırır) —
+  // serverless'ta her cold start'ta 8 ayrı gidiş-dönüş yerine 1 tane olsun diye.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS requests (
       id SERIAL PRIMARY KEY,
@@ -35,31 +38,27 @@ async function initDb() {
       aciklama TEXT,
       durum TEXT NOT NULL,
       lansman_tarihi TIMESTAMP
-    )
-  `);
+    );
 
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'Analist'
-    )
+    );
+
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP;
+
+    ALTER TABLE requests ADD COLUMN IF NOT EXISTS alt_tip TEXT;
+    ALTER TABLE requests ADD COLUMN IF NOT EXISTS surec_adimi TEXT;
+
+    CREATE TABLE IF NOT EXISTS teams (
+      id SERIAL PRIMARY KEY,
+      code TEXT NOT NULL UNIQUE
+    );
   `);
-
-  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name TEXT');
-  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT');
-  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP');
-
-  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS alt_tip TEXT');
-  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS surec_adimi TEXT');
-
-  await pool.query(`
-  CREATE TABLE IF NOT EXISTS teams (
-    id SERIAL PRIMARY KEY,
-    code TEXT NOT NULL UNIQUE
-  )
-`);
 
   console.log('Veritabanı tabloları hazır ✅');
 }
