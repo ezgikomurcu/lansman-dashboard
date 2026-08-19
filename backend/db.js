@@ -21,9 +21,12 @@ const pool = process.env.DATABASE_URL
     });
 
 async function initDb() {
-  // Hepsi tek pool.query() çağrısında (parametresiz sorgular node-postgres'te
-  // ";" ile ayrılmış birden fazla komutu TEK network round-trip'te çalıştırır) —
-  // serverless'ta her cold start'ta 8 ayrı gidiş-dönüş yerine 1 tane olsun diye.
+  // Ayrı ayrı await'lenen sorgular olarak kalmalı: Neon'un pooled (PgBouncer)
+  // ucunda tek mesajda ";" ile ayrılmış çoklu komut göndermek bağlantıyı
+  // bozup havuza geri dönen bağlantının sonraki (tamamen alakasız) sorguları
+  // sonsuza kadar askıda bırakmasına yol açtı — production'da /api/requests
+  // hiç yanıt vermez hale geldi. Round-trip sayısından fedakarlık edip
+  // güvenilirliği önceliklendiriyoruz.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS requests (
       id SERIAL PRIMARY KEY,
@@ -38,26 +41,30 @@ async function initDb() {
       aciklama TEXT,
       durum TEXT NOT NULL,
       lansman_tarihi TIMESTAMP
-    );
+    )
+  `);
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'Analist'
-    );
+    )
+  `);
 
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name TEXT;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP;
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name TEXT');
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT');
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP');
 
-    ALTER TABLE requests ADD COLUMN IF NOT EXISTS alt_tip TEXT;
-    ALTER TABLE requests ADD COLUMN IF NOT EXISTS surec_adimi TEXT;
+  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS alt_tip TEXT');
+  await pool.query('ALTER TABLE requests ADD COLUMN IF NOT EXISTS surec_adimi TEXT');
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS teams (
       id SERIAL PRIMARY KEY,
       code TEXT NOT NULL UNIQUE
-    );
+    )
   `);
 
   console.log('Veritabanı tabloları hazır ✅');
