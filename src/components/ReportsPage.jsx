@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { DATA, RANGE_END, TEAMS, PEOPLE, monthKey, monthLabel, fmtDate } from '../data/dummyData';
+import { DATA, RANGE_END, TEAMS, PEOPLE, monthKey, monthLabel, fmtDate, shortTeam } from '../data/dummyData';
 import CompareChart from './charts/CompareChart';
 
 function pct(cur, prev) {
@@ -63,6 +61,16 @@ function buildSummaryBullets({ openedThis, openedLast, launchesThis, launchesLas
   return bullets;
 }
 
+// PDF her zaman beyaz kağıt zemininde basılır (koyu bir sayfa basılabilir/okunabilir
+// olmaz), bu yüzden temanın tamamı değil sadece vurgu rengi taşınır — her temanın
+// kendi tonuyla ama kağıt üstünde okunaklı kalacak koyulukta.
+const PDF_THEME = {
+  dark: { accent: [153, 119, 0], tint: [255, 250, 230] },
+  light: { accent: [153, 119, 0], tint: [255, 250, 230] },
+  custom: { accent: [140, 60, 80], tint: [250, 240, 242] },
+  vivid: { accent: [196, 24, 90], tint: [253, 235, 243] }
+};
+
 // ---- Font dosyasını (public/fonts'tan) okuyup jsPDF'e tanıtan yardımcı fonksiyon ----
 async function loadFont(doc, url, fontName, style) {
   const res = await fetch(url);
@@ -76,7 +84,7 @@ async function loadFont(doc, url, fontName, style) {
   doc.addFont(fileName, fontName, style);
 }
 
-export default function ReportsPage({ selectedMonth, onMonthChange }) {
+export default function ReportsPage({ selectedMonth, onMonthChange, theme }) {
   function monthsBetweenKeys(startKey, endKey) {
     const [sy, sm] = startKey.split('-').map(Number);
     const [ey, em] = endKey.split('-').map(Number);
@@ -130,6 +138,7 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
   const exportPDF = async () => {
     setPdfBusy(true);
     try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
       const doc = new jsPDF();
 
       // ---- Türkçe karakter destekli fontu yükle ----
@@ -139,10 +148,9 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
       const pageWidth = doc.internal.pageSize.getWidth();
       const periodText = monthLabel(selectedMonth);
 
-      const BORDO = [110, 20, 28];
+      const { accent: BORDO, tint: ACIK_ZEMIN } = PDF_THEME[theme] || PDF_THEME.dark;
       const ANTRASIT = [40, 40, 42];
       const GRI = [125, 125, 128];
-      const ACIK_ZEMIN = [250, 246, 245];
       const KENAR = [228, 220, 219];
 
       doc.setFont('Roboto', 'bold');
@@ -166,12 +174,14 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
 
       let cursorY = 41;
 
-      const boxWidth = 58;
+      const ratio = openedThis ? Math.round((closedThis / openedThis) * 100) : 0;
       const boxGap = 4;
+      const boxWidth = (pageWidth - 28 - 3 * boxGap) / 4;
       const kpis = [
         { label: 'LANSMAN', value: launchesThis, sub: `Önceki ay: ${launchesLast}` },
         { label: 'AÇILAN TALEP', value: openedThis, sub: `Önceki ay: ${openedLast}` },
-        { label: 'KAPANAN TALEP', value: closedThis, sub: `Önceki ay: ${closedLast}` }
+        { label: 'KAPANAN TALEP', value: closedThis, sub: `Önceki ay: ${closedLast}` },
+        { label: 'AÇIK/KAPALI ORANI', value: `%${ratio}`, sub: `${closedThis} / ${openedThis} talep` }
       ];
       kpis.forEach((k, i) => {
         const x = 14 + i * (boxWidth + boxGap);
@@ -184,7 +194,7 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
         doc.line(x, cursorY, x + boxWidth, cursorY);
 
         doc.setFont('Roboto', 'normal');
-        doc.setFontSize(7.5);
+        doc.setFontSize(7);
         doc.setTextColor(...GRI);
         doc.text(k.label, x + 5, cursorY + 8);
         doc.setFont('Roboto', 'bold');
@@ -196,7 +206,24 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
         doc.setTextColor(...GRI);
         doc.text(k.sub, x + 5, cursorY + 21.5);
       });
-      cursorY += 24 + 12;
+      cursorY += 24 + 10;
+
+      // SLA durumu — özet listesinin arasında kaybolmasın diye ayrı, öne çıkan bir kutu
+      const active = DATA.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor');
+      const slaBreach = active.filter((r) => (RANGE_END - r.acilis) / 86400000 > 10).length;
+      const slaOk = slaBreach === 0;
+      doc.setFillColor(...(slaOk ? ACIK_ZEMIN : [252, 232, 232]));
+      doc.setDrawColor(...(slaOk ? BORDO : [176, 48, 48]));
+      doc.setLineWidth(0.4);
+      doc.roundedRect(14, cursorY, pageWidth - 28, 11, 1.5, 1.5, 'FD');
+      doc.setFont('Roboto', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...(slaOk ? BORDO : [150, 30, 30]));
+      doc.text(
+        slaOk ? 'SLA durumu: sorun yok' : `SLA durumu: ${slaBreach} talep 10 günü aştı`,
+        14 + 5, cursorY + 7
+      );
+      cursorY += 11 + 10;
 
       doc.setFont('Roboto', 'bold');
       doc.setFontSize(12);
@@ -229,12 +256,13 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
         const rows = DATA.filter((r) => r.ekip === t);
         const closedCount = rows.filter((r) => r.durum === 'Kapalı').length;
         const pendingCount = rows.filter((r) => r.durum === 'Açık' || r.durum === 'Onay Bekleniyor').length;
-        return [t, rows.length, closedCount, pendingCount];
+        const closeRate = rows.length ? Math.round((closedCount / rows.length) * 100) : 0;
+        return [shortTeam(t), rows.length, closedCount, pendingCount, `%${closeRate}`];
       });
 
       autoTable(doc, {
         startY: cursorY,
-        head: [['Takım', 'Toplam Talep', 'Kapalı', 'Bekleyen']],
+        head: [['Takım', 'Toplam Talep', 'Kapalı', 'Bekleyen', 'Kapanma Oranı']],
         body: teamRows,
         theme: 'striped',
         styles: { font: 'Roboto', fontSize: 8.5, cellPadding: 2.6, textColor: [50, 50, 50] },
@@ -288,8 +316,8 @@ export default function ReportsPage({ selectedMonth, onMonthChange }) {
       <div className="page-head">
         <div className="subtitle">Dönem karşılaştırması ve dışa aktarım</div>
         <div className="ph-actions" style={{ alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 700 }}>Rapor Dönemi:</span>
-          <select className="month-select" value={selectedMonth} onChange={(e) => onMonthChange(e.target.value)}>
+          <label htmlFor="report-month" style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 700 }}>Rapor Dönemi:</label>
+          <select id="report-month" className="month-select" value={selectedMonth} onChange={(e) => onMonthChange(e.target.value)}>
             {availableMonths.map((mk) => (
               <option key={mk} value={mk}>{monthLabel(mk)}</option>
             ))}

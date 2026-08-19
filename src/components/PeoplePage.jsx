@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DATA, RANGE_END, PEOPLE } from '../data/dummyData';
 import PersonModalChart from './charts/PersonModalChart';
+import Modal from './Modal';
 import { CalendarIcon } from './Icons';
 
 const QUICK_RANGES = [
@@ -90,12 +91,12 @@ export default function PeoplePage({ theme, search }) {
         {showCustomPicker && (
           <div className="custom-range-panel">
             <div className="field" style={{ marginBottom: 0 }}>
-              <label>Başlangıç</label>
-              <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
+              <label htmlFor="people-custom-start">Başlangıç</label>
+              <input id="people-custom-start" type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
             </div>
             <div className="field" style={{ marginBottom: 0 }}>
-              <label>Bitiş</label>
-              <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
+              <label htmlFor="people-custom-end">Bitiş</label>
+              <input id="people-custom-end" type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
             </div>
             <button className="btn primary small" onClick={applyCustomRange}>Uygula</button>
           </div>
@@ -111,47 +112,48 @@ export default function PeoplePage({ theme, search }) {
           const initials = p.split(' ').map((w) => w[0]).join('');
 
           return (
-            <div className="person-card" key={p} onClick={() => setSelected(p)}>
-              <div className="p-avatar">{initials}</div>
-              <div className="p-name">{p}</div>
-              <div className="p-role">{rows.length} toplam talep</div>
+            <button type="button" className="person-card" key={p} onClick={() => setSelected(p)}>
+              <div className="p-head">
+                <div className="p-avatar">{initials}</div>
+                <div className="p-head-text">
+                  <div className="p-name">{p}</div>
+                  <div className="p-role">{rows.length} toplam talep</div>
+                </div>
+              </div>
               <div className="p-stats">
                 <div className="p-stat"><b>{launches}</b><span>Lansman</span></div>
                 <div className="p-stat"><b>{pending}</b><span>Bekleyen</span></div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
 
       {selected && (
-        <div className="modal-overlay show">
-          <div className="modal-card">
-            <div className="modal-close" onClick={() => setSelected(null)}>✕</div>
-            <h3>{selected}</h3>
-            <div className="m-sub">
-              {filteredData.filter((r) => r.acanKisi === selected).length} toplam talep ·{' '}
-              {rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label}
-            </div>
-
-            <div className="grid-2" style={{ marginBottom: 16 }}>
-              <div className="kpi-card">
-                <div className="k-label">Toplam Lansman</div>
-                <div className="k-value">
-                  {filteredData.filter((r) => r.acanKisi === selected && r.lansman).length}
-                </div>
-              </div>
-              <div className="kpi-card">
-                <div className="k-label">Bekleyen Talep</div>
-                <div className="k-value">
-                  {filteredData.filter((r) => r.acanKisi === selected && (r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')).length}
-                </div>
-              </div>
-            </div>
-
-            <PersonModalChart personName={selected} theme={theme} data={filteredData} months={monthsToShow} endDate={chartEndDate} />
+        <Modal onClose={() => setSelected(null)} titleId="person-title">
+          <h3 id="person-title">{selected}</h3>
+          <div className="m-sub">
+            {filteredData.filter((r) => r.acanKisi === selected).length} toplam talep ·{' '}
+            {rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label}
           </div>
-        </div>
+
+          <div className="grid-2" style={{ marginBottom: 16 }}>
+            <div className="kpi-card">
+              <div className="k-label">Toplam Lansman</div>
+              <div className="k-value">
+                {filteredData.filter((r) => r.acanKisi === selected && r.lansman).length}
+              </div>
+            </div>
+            <div className="kpi-card">
+              <div className="k-label">Bekleyen Talep</div>
+              <div className="k-value">
+                {filteredData.filter((r) => r.acanKisi === selected && (r.durum === 'Açık' || r.durum === 'Onay Bekleniyor')).length}
+              </div>
+            </div>
+          </div>
+
+          <PersonModalChart personName={selected} theme={theme} data={filteredData} months={monthsToShow} endDate={chartEndDate} />
+        </Modal>
       )}
     </>
   );

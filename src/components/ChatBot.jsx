@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PEOPLE, TEAMS, RANGE_END, lastNMonths, monthKey, monthLabel } from '../data/dummyData';
+import { PEOPLE, TEAMS, RANGE_END, monthKey, monthLabel } from '../data/dummyData';
 import { ChatIcon, CloseIcon } from './Icons';
 
 function normalize(str) {
@@ -241,29 +241,37 @@ export default function ChatBot({ data, periodLabel }) {
 
   return (
     <>
-      <div className="chatbot-btn" onClick={() => setOpen((o) => !o)}>
+      <button
+        type="button"
+        className="chatbot-btn"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={open ? 'Asistanı kapat' : 'Dashboard asistanını aç'}
+        aria-expanded={open}
+      >
         {open ? <CloseIcon /> : <ChatIcon />}
-      </div>
+      </button>
       {open && (
-        <div className="chatbot-panel">
+        <div className="chatbot-panel" role="dialog" aria-label="Dashboard Asistanı" onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}>
           <div className="chatbot-head">
             Dashboard Asistanı · {periodLabel}
-            <span style={{ cursor: 'pointer', color: 'var(--text-dim)', display: 'flex' }} onClick={() => setOpen(false)}><CloseIcon /></span>
+            <button type="button" className="chatbot-close" onClick={() => setOpen(false)} aria-label="Kapat"><CloseIcon /></button>
           </div>
-          <div className="chatbot-messages">
+          <div className="chatbot-messages" role="log" aria-live="polite">
             {messages.map((m, i) => (
               <div className={`chat-msg ${m.from}`} key={i}>{m.text}</div>
             ))}
           </div>
           <div className="chatbot-input-row">
+            <label htmlFor="chatbot-input" className="sr-only">Asistana soru yaz</label>
             <input
+              id="chatbot-input"
               type="text"
               placeholder="Bir soru yaz..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
             />
-            <button onClick={send}>Gönder</button>
+            <button type="button" onClick={send}>Gönder</button>
           </div>
         </div>
       )}

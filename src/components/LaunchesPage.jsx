@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
-import { DATA, fmtDate } from '../data/dummyData';
+import { useState } from 'react';
+import { DATA, fmtDate, shortTeam } from '../data/dummyData';
 import RequestTimeline from './RequestTimeline';
 import Pagination from './Pagination';
 
 const PAGE_SIZE = 20;
+
+const TIP_BADGE = {
+  Kampanya: 'tip-kampanya',
+  Postpaid: 'tip-postpaid',
+  Servis: 'tip-servis'
+};
 
 const COLUMNS = [
   { key: 'id', label: 'Talep ID' },
@@ -20,7 +26,13 @@ export default function LaunchesPage({ search }) {
   const [sortBy, setSortBy] = useState('lansman');
   const [sortDir, setSortDir] = useState('desc');
 
-  useEffect(() => { setPage(1); }, [search]);
+  // Effect yerine render sırasında state ayarı: React'in önerdiği desen —
+  // search değişince sayfayı senkron biçimde 1'e döndürür, ekstra render/commit yaratmaz.
+  const [prevSearch, setPrevSearch] = useState(search);
+  if (search !== prevSearch) {
+    setPrevSearch(search);
+    setPage(1);
+  }
 
   const toggleSort = (col) => {
     if (sortBy === col) {
@@ -72,7 +84,7 @@ export default function LaunchesPage({ search }) {
   return (
     <>
       <div className="page-head">
-        <div className="subtitle">Lansmanı tamamlanmış talepler — sütun başlığına tıklayarak sırala, satıra tıklayarak zaman çizelgesini gör</div>
+        <div className="subtitle">Sütun başlığına tıklayarak sırala, satıra tıklayarak zaman çizelgesini gör</div>
         <div className="ph-actions">
           <button className="btn primary" onClick={exportCSV}>⬇ CSV indir</button>
         </div>
@@ -84,21 +96,23 @@ export default function LaunchesPage({ search }) {
             <thead>
               <tr>
                 {COLUMNS.map((c) => (
-                  <th key={c.key} style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort(c.key)}>
-                    {c.label} {sortBy === c.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                  <th key={c.key} aria-sort={sortBy === c.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                    <button type="button" className="th-sort-btn" onClick={() => toggleSort(c.key)}>
+                      {c.label} {sortBy === c.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                    </button>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {pageRows.map((r) => (
-                <tr key={r.idx} style={{ cursor: 'pointer' }} onClick={() => setSelected(r)}>
-                  <td>{r.id}</td>
+                <tr key={r.idx} className="row-clickable" onClick={() => setSelected(r)} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(r); } }}>
+                  <td><span className="id-chip">{r.id}</span></td>
                   <td>{fmtDate(r.lansman)}</td>
                   <td className="name">{r.acanKisi}</td>
-                  <td>{r.ekip}</td>
-                  <td>{r.tip}</td>
-                  <td>{r.days}</td>
+                  <td title={r.ekip}>{shortTeam(r.ekip)}</td>
+                  <td><span className={`badge ${TIP_BADGE[r.tip] || ''}`}>{r.tip}</span></td>
+                  <td className="num">{r.days}</td>
                 </tr>
               ))}
               {pageRows.length === 0 && <tr><td colSpan="6">Sonuç bulunamadı</td></tr>}

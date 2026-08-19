@@ -1,4 +1,6 @@
 import { fmtDate } from '../data/dummyData';
+import Modal from './Modal';
+import { CheckIcon } from './Icons';
 
 export default function RequestTimeline({ request, onClose }) {
   if (!request) return null;
@@ -8,13 +10,11 @@ export default function RequestTimeline({ request, onClose }) {
     : null;
 
   return (
-    <div className="modal-overlay show">
-      <div className="modal-card">
-        <div className="modal-close" onClick={onClose}>✕</div>
-        <h3>Talep #{request.id}</h3>
-        <div className="m-sub">
-          {request.aciklama} · {request.ekip.replace('TEAM-K-BO-', '')} · {request.tip}
-        </div>
+    <Modal onClose={onClose} titleId="timeline-title">
+      <h3 id="timeline-title">Talep #{request.id}</h3>
+      <div className="m-sub">
+        {request.aciklama} · {request.ekip.replace('TEAM-K-BO-', '')} · {request.tip}
+      </div>
 
         {request.surecAdimi && (
           <div className="success-box" style={{ marginBottom: 18 }}>
@@ -39,23 +39,34 @@ export default function RequestTimeline({ request, onClose }) {
 
         <div className="timeline">
           <div className="tl-item done">
-            <div className="tl-title">Talebi Açan</div>
-            <div className="tl-person">{request.acanKisi}</div>
+            <div className="tl-marker"><CheckIcon /></div>
+            <div className="tl-body">
+              <div className="tl-title">Talebi Açan</div>
+              <div className="tl-person">{request.acanKisi}</div>
+            </div>
           </div>
           <div className="tl-item done">
-            <div className="tl-title">Analiz</div>
-            <div className="tl-person">{request.analiz}</div>
+            <div className="tl-marker"><CheckIcon /></div>
+            <div className="tl-body">
+              <div className="tl-title">Analiz</div>
+              <div className="tl-person">{request.analiz}</div>
+            </div>
           </div>
           <div className="tl-item done">
-            <div className="tl-title">2. Göz Kontrolü</div>
-            <div className="tl-person">{request.ikinciGoz}</div>
+            <div className="tl-marker"><CheckIcon /></div>
+            <div className="tl-body">
+              <div className="tl-title">2. Göz Kontrolü</div>
+              <div className="tl-person">{request.ikinciGoz}</div>
+            </div>
           </div>
           <div className="tl-item done">
-            <div className="tl-title">QA</div>
-            <div className="tl-person">{request.qa}</div>
+            <div className="tl-marker"><CheckIcon /></div>
+            <div className="tl-body">
+              <div className="tl-title">QA</div>
+              <div className="tl-person">{request.qa}</div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

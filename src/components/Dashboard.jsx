@@ -1,12 +1,9 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { Chart as ChartJS } from 'chart.js';
+import { getColors } from '../chartColors';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import KpiCard from './KpiCard';
-import ApprovalQueue from './ApprovalQueue';
-import PeoplePage from './PeoplePage';
-import LaunchesPage from './LaunchesPage';
-import TeamsPage from './TeamsPage';
-import ReportsPage from './ReportsPage';
 import LansmanTrendChart from './charts/LansmanTrendChart';
 import PersonLaunchChart from './charts/PersonLaunchChart';
 import OpenedTrendChart from './charts/OpenedTrendChart';
@@ -18,6 +15,18 @@ import Toast from './Toast';
 import AltTipChart from './charts/AltTipChart';
 import { CalendarIcon } from './Icons';
 import { DATA, RANGE_END, monthKey } from '../data/dummyData';
+
+// Sayfa başına gerekene kadar indirilmesin diye ayrı chunk'lara bölünür —
+// ReportsPage özellikle jsPDF/jspdf-autotable'ı sürükler.
+const ApprovalQueue = lazy(() => import('./ApprovalQueue'));
+const PeoplePage = lazy(() => import('./PeoplePage'));
+const LaunchesPage = lazy(() => import('./LaunchesPage'));
+const TeamsPage = lazy(() => import('./TeamsPage'));
+const ReportsPage = lazy(() => import('./ReportsPage'));
+
+function PageFallback() {
+  return <div className="panel" aria-busy="true">Yükleniyor…</div>;
+}
 
 const QUICK_RANGES = [
   { key: 90, label: 'Son 90 gün' },
@@ -96,6 +105,9 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
 
   const customLabel =
     rangeKey === 'custom' && customStart && customEnd ? `${customStart} → ${customEnd}` : 'Özel Aralık';
+  const periodLabel = rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label;
+
+  ChartJS.defaults.color = getColors(theme).text;
 
   return (
     <div id="app" className={`show ${navCollapsed ? 'nav-collapsed' : ''}`}>
@@ -144,12 +156,12 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
             {showCustomPicker && (
               <div className="custom-range-panel">
                 <div className="field" style={{ marginBottom: 0 }}>
-                  <label>Başlangıç</label>
-                  <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
+                  <label htmlFor="ov-custom-start">Başlangıç</label>
+                  <input id="ov-custom-start" type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
                 </div>
                 <div className="field" style={{ marginBottom: 0 }}>
-                  <label>Bitiş</label>
-                  <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
+                  <label htmlFor="ov-custom-end">Bitiş</label>
+                  <input id="ov-custom-end" type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
                 </div>
                 <button className="btn primary small" onClick={applyCustomRange}>Uygula</button>
               </div>
@@ -184,30 +196,47 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
               <RatioTrendChart data={filteredData} theme={theme} months={monthsToShow} endDate={chartEndDate} />
             </div>
             <div className="grid-2">
-              <StatusDonutChart data={filteredData} theme={theme} />
-              <TypeDonutChart data={filteredData} theme={theme} />
+              <StatusDonutChart data={filteredData} theme={theme} periodLabel={periodLabel} />
+              <TypeDonutChart data={filteredData} theme={theme} periodLabel={periodLabel} />
+              {/* aynı grid'in ilk sütununa akar — üstteki sütunla piksel piksel hizalı kalır */}
+              <AltTipChart data={filteredData} theme={theme} periodLabel={periodLabel} />
             </div>
-            <AltTipChart data={filteredData} theme={theme} />
           </>
         )}
 
         {activeView === 'pending' && (
-          <ApprovalQueue
-            search={search}
-            onDataChange={() => setDataVersion((v) => v + 1)}
-            onNotify={notify}
-            theme={theme}
-            user={user}
-          />
+          <Suspense fallback={<PageFallback />}>
+            <ApprovalQueue
+              search={search}
+              onDataChange={() => setDataVersion((v) => v + 1)}
+              onNotify={notify}
+              theme={theme}
+              user={user}
+            />
+          </Suspense>
         )}
-        {activeView === 'people' && <PeoplePage theme={theme} search={search} />}
-        {activeView === 'launches' && <LaunchesPage search={search} />}
-        {activeView === 'teams' && <TeamsPage theme={theme} />}
+        {activeView === 'people' && (
+          <Suspense fallback={<PageFallback />}>
+            <PeoplePage theme={theme} search={search} />
+          </Suspense>
+        )}
+        {activeView === 'launches' && (
+          <Suspense fallback={<PageFallback />}>
+            <LaunchesPage search={search} />
+          </Suspense>
+        )}
+        {activeView === 'teams' && (
+          <Suspense fallback={<PageFallback />}>
+            <TeamsPage theme={theme} />
+          </Suspense>
+        )}
         {activeView === 'reports' && (
-          <ReportsPage selectedMonth={reportMonth} onMonthChange={setReportMonth} />
+          <Suspense fallback={<PageFallback />}>
+            <ReportsPage selectedMonth={reportMonth} onMonthChange={setReportMonth} theme={theme} />
+          </Suspense>
         )}
       </main>
-      <ChatBot data={filteredData} periodLabel={rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label} />
+      <ChatBot data={filteredData} periodLabel={periodLabel} />
       <Toast toast={toast} />
     </div>
   );

@@ -1,7 +1,8 @@
 import { Bar } from 'react-chartjs-2';
 import { getColors } from '../../chartColors';
+import { cartesianOptions } from '../../chartOptions';
 
-export default function AltTipChart({ data, theme }) {
+export default function AltTipChart({ data, theme, periodLabel }) {
   const colors = getColors(theme);
   const counts = {};
   data.forEach((r) => {
@@ -15,19 +16,13 @@ export default function AltTipChart({ data, theme }) {
     datasets: [{ label: 'Talep', data: sorted.map((p) => p[1]), backgroundColor: colors.secondary, borderRadius: 6 }]
   };
 
-  const options = {
-    indexAxis: 'y',
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, ticks: { precision: 0 } },
-      y: { grid: { display: false } }
-    }
-  };
+  const options = cartesianOptions({ colors, horizontal: true });
+  const summary = `Alt tip dağılımı: ${sorted.map(([k, v]) => `${k} ${v}`).join(', ')}`;
 
   return (
-    <div className="panel narrow-left">
-      <div className="panel-head"><h3>Alt Tip Dağılımı</h3><span className="tag">Tüm talepler</span></div>
-      <div className="chart-wrap tall"><Bar data={chartData} options={options} /></div>
+    <div className="panel" style={{ gridColumn: '1' }}>
+      <div className="panel-head"><h3>Alt Tip Dağılımı</h3><span className="tag">{periodLabel || 'Tüm talepler'}</span></div>
+      <div className="chart-wrap tall" role="img" aria-label={summary}><Bar data={chartData} options={options} /></div>
     </div>
   );
 }

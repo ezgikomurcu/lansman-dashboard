@@ -1,6 +1,7 @@
 import { Bar } from 'react-chartjs-2';
 import { PEOPLE } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
+import { cartesianOptions } from '../../chartOptions';
 
 export default function PersonLaunchChart({ data, theme }) {
   const colors = getColors(theme);
@@ -15,19 +16,13 @@ export default function PersonLaunchChart({ data, theme }) {
     datasets: [{ label: 'Lansman', data: sorted.map((p) => p[1]), backgroundColor: colors.secondary, borderRadius: 6 }]
   };
 
-  const options = {
-    indexAxis: 'y',
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, ticks: { precision: 0 } },
-      y: { grid: { display: false } }
-    }
-  };
+  const options = cartesianOptions({ colors, horizontal: true });
+  const summary = `Kişi bazlı lansman adedi: ${sorted.map(([k, v]) => `${k} ${v}`).join(', ')}`;
 
   return (
     <div className="panel">
       <div className="panel-head"><h3>Kişi Bazlı Lansman Adedi</h3><span className="tag">Top 8</span></div>
-      <div className="chart-wrap tall"><Bar data={chartData} options={options} /></div>
+      <div className="chart-wrap tall" role="img" aria-label={summary}><Bar data={chartData} options={options} /></div>
     </div>
   );
 }

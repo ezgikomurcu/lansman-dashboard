@@ -71,3 +71,7 @@ export function lastNMonths(n, endDate) {
   }
   return arr;
 }
+
+export function shortTeam(t) {
+  return t.replace('TEAM-K-BO-', '').replace('TEAM-BO-FT-', '');
+}

@@ -1,6 +1,7 @@
 import { Bar } from 'react-chartjs-2';
-import { DATA, TEAMS } from '../../data/dummyData';
+import { DATA, TEAMS, shortTeam } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
+import { cartesianOptions } from '../../chartOptions';
 
 export default function TeamStatusChart({ theme }) {
   const colors = getColors(theme);
@@ -10,27 +11,23 @@ export default function TeamStatusChart({ theme }) {
     if (teamStatus[r.ekip][r.durum] !== undefined) teamStatus[r.ekip][r.durum]++;
   });
 
+  // Açık → Onay Bekleniyor → Kapalı sıralı bir akıştır: tek hue, açıktan koyuya.
   const data = {
-    labels: TEAMS,
+    labels: TEAMS.map(shortTeam),
     datasets: [
-      { label: 'Açık', data: TEAMS.map((t) => teamStatus[t]['Açık']), backgroundColor: colors.coral, borderRadius: 5 },
-      { label: 'Onay Bekleniyor', data: TEAMS.map((t) => teamStatus[t]['Onay Bekleniyor']), backgroundColor: colors.amber, borderRadius: 5 },
-      { label: 'Kapalı', data: TEAMS.map((t) => teamStatus[t]['Kapalı']), backgroundColor: colors.primary, borderRadius: 5 }
+      { label: 'Açık', data: TEAMS.map((t) => teamStatus[t]['Açık']), backgroundColor: colors.sequence[0], borderRadius: 5, borderColor: colors.surface, borderWidth: { top: 2, bottom: 0, left: 0, right: 0 } },
+      { label: 'Onay Bekleniyor', data: TEAMS.map((t) => teamStatus[t]['Onay Bekleniyor']), backgroundColor: colors.sequence[1], borderRadius: 5, borderColor: colors.surface, borderWidth: 2 },
+      { label: 'Kapalı', data: TEAMS.map((t) => teamStatus[t]['Kapalı']), backgroundColor: colors.sequence[2], borderRadius: 5, borderColor: colors.surface, borderWidth: { top: 2, bottom: 0, left: 0, right: 0 } }
     ]
   };
 
-  const options = {
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 14 } } },
-    scales: {
-      x: { stacked: true, grid: { display: false } },
-      y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0 } }
-    }
-  };
+  const options = cartesianOptions({ colors, stacked: true, legend: true });
+  const summary = `Takıma göre durum dağılımı: ${TEAMS.map((t) => `${shortTeam(t)} — açık ${teamStatus[t]['Açık']}, onay bekleniyor ${teamStatus[t]['Onay Bekleniyor']}, kapalı ${teamStatus[t]['Kapalı']}`).join('; ')}`;
 
   return (
     <div className="panel">
       <div className="panel-head"><h3>Takıma Göre Durum Dağılımı</h3><span className="tag">Açık · Onay · Kapalı</span></div>
-      <div className="chart-wrap tall"><Bar data={data} options={options} /></div>
+      <div className="chart-wrap tall" role="img" aria-label={summary}><Bar data={data} options={options} /></div>
     </div>
   );
 }

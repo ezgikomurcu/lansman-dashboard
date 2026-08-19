@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { BellIcon, MoonIcon, SunIcon, PaletteIcon, SearchIcon } from './Icons';
+import { BellIcon, MoonIcon, SunIcon, PaletteIcon, SparkleIcon, SearchIcon } from './Icons';
 
 const PAGE_TITLES = {
   overview: 'Genel Bakış',
@@ -8,6 +8,17 @@ const PAGE_TITLES = {
   people: 'Kişi Performansı',
   teams: 'Takım Dağılımı',
   reports: 'Raporlar'
+};
+
+// Topbar'daki her sayfada aynı "Tüm ekip · seçili dönem" yazıyordu — Lansmanlar/
+// Raporlar gibi dönem seçicisi olmayan sayfalarda bu doğrudan yanlış bilgiydi.
+const PAGE_SUBTITLES = {
+  overview: 'Tüm ekip · seçili dönem',
+  launches: 'Lansmanı tamamlanan talepler',
+  pending: 'Onay bekleyen açık talepler',
+  people: 'Kişi bazlı performans özeti',
+  teams: 'Takım bazlı hacim ve durum',
+  reports: 'Aylık karşılaştırma ve dışa aktarım'
 };
 
 const SEARCHABLE_VIEWS = ['pending', 'launches', 'people'];
@@ -30,13 +41,15 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
     <div className="topbar">
       <div>
         <h2>{PAGE_TITLES[activeView]}</h2>
-        <div className="subtitle">Tüm ekip · seçili dönem</div>
+        <div className="subtitle">{PAGE_SUBTITLES[activeView]}</div>
       </div>
       <div className="topbar-actions">
         {SEARCHABLE_VIEWS.includes(activeView) && (
           <div className="search-box">
-            <SearchIcon />
+            <SearchIcon aria-hidden="true" />
+            <label htmlFor="topbar-search" className="sr-only">Talep ID veya kişi ara</label>
             <input
+              id="topbar-search"
               type="text"
               placeholder="Talep ID veya kişi ara..."
               value={search}
@@ -46,15 +59,22 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
         )}
 
         <div className="icon-btn-wrap" ref={notifRef}>
-          <div className="icon-btn" onClick={() => setShowNotif((s) => !s)}>
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => setShowNotif((s) => !s)}
+            aria-haspopup="true"
+            aria-expanded={showNotif}
+            aria-label={`Bildirimler${notifications.length > 0 ? ` (${notifications.length} yeni)` : ''}`}
+          >
              <BellIcon />
             {notifications.length > 0 && <span className="badge-dot">{notifications.length}</span>}
-          </div>
+          </button>
           {showNotif && (
-            <div className="dropdown show">
+            <div className="dropdown show" role="menu" onKeyDown={(e) => { if (e.key === 'Escape') setShowNotif(false); }}>
               <div className="dropdown-head">
                 Bildirimler
-                <span className="dropdown-close" onClick={() => setShowNotif(false)}>✕</span>
+                <button type="button" className="dropdown-close" onClick={() => setShowNotif(false)} aria-label="Kapat">✕</button>
               </div>
               {notifications.length === 0 && <div className="notif-item">Yeni bildirim yok</div>}
               {notifications.map((n, i) => (
@@ -67,9 +87,9 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
           )}
         </div>
 
-        <div className="icon-btn" onClick={onToggleTheme}>
-           {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : <PaletteIcon />}
-        </div>
+        <button type="button" className="icon-btn" onClick={onToggleTheme} aria-label="Temayı değiştir">
+           {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : theme === 'custom' ? <PaletteIcon /> : <SparkleIcon />}
+        </button>
       </div>
     </div>
   );
