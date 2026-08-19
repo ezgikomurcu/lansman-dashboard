@@ -144,10 +144,6 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
             {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
           </button>
 
-          <div className="login-brand">
-            <img src="/login_logo.png" className="login-logo-img" alt="Launchly — Fikirden lansmana, her adımda yanındayız." />
-          </div>
-
           {(mode === 'forgot' || mode === 'reset') && (
             <button type="button" className="back-link" onClick={() => goTo('login')}>← Girişe dön</button>
           )}

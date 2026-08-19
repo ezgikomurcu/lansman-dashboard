@@ -84,14 +84,20 @@ button{background:none;border:none;cursor:pointer;padding:0;text-align:inherit;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* ---------- LOGIN ---------- */
+/* "Liquid glass": arkadaki gradyanı/desenin donuk camdan görünmesi için
+   backdrop-filter blur + saturate, yarı saydam yüzey ve ince ışık kenarlığı.
+   Renkler color-mix ile temanın kendi --surface/--text değerinden türetildiği
+   için hem açık hem koyu temada doğru tonda kalıyor. */
 .login-card{
   width:100%;
   max-width:400px;
-  background:var(--surface);
-  border-color:transparent;
+  background:color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid color-mix(in srgb, white 35%, transparent);
   border-radius:20px;
-  padding:40px 36px;
-  box-shadow:0 1px 2px rgba(23,17,20,.04), 0 20px 40px -20px rgba(23,17,20,.14);
+  padding:56px 36px 40px;
+  box-shadow:0 8px 32px rgba(0,0,0,.14), inset 0 1px 0 color-mix(in srgb, white 45%, transparent);
   position:relative;
   overflow:hidden;
 }
@@ -99,11 +105,9 @@ button{background:none;border:none;cursor:pointer;padding:0;text-align:inherit;}
   content:'';
   position:absolute; top:-40%; right:-40%;
   width:280px;height:280px;border-radius:50%;
-  background:radial-gradient(circle, rgba(227,28,99,0.18), transparent 70%);
+  background:radial-gradient(circle, rgba(227,28,99,0.25), transparent 70%);
   pointer-events:none;
 }
-.login-brand{margin-bottom:28px;}
-.login-brand .login-logo-img{display:block;width:100%;max-width:220px;height:auto;object-fit:contain;}
 .login-card h1{font-size:var(--fs-xl);font-weight:800;margin-bottom:6px;}
 .login-card p.sub{color:var(--text-dim);font-size:var(--fs-base);margin-bottom:28px;line-height:1.5;}
 .field{margin-bottom:16px;}
@@ -588,10 +592,14 @@ tbody tr:nth-child(even){background:rgba(0,0,0,0.035);}
 .btn.secondary{background:transparent;border:1px solid var(--border-strong);color:var(--text);width:100%;margin-top:10px;}
 .btn.secondary:hover{background:var(--bg-2);}
 
-#loginScreen{display:flex;min-height:100vh;width:100%;}
-.login-split-left{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(160deg, var(--teal-dim), var(--violet-dim));}
-.login-split-img{width:100%;height:100%;object-fit:contain;}
-.login-split-right{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;}
+/* space-evenly, iki öğeyi (görsel + kart) sabit/sınırlı boyutta tutup aralarındaki
+   boşluğu MATEMATİKSEL olarak eşitliyor: sol kenar boşluğu = ortadaki boşluk =
+   sağ kenar boşluğu. Elle piksel ayarlamaktan (viewport genişliğine göre hep
+   kayan) daha güvenilir. */
+#loginScreen{display:flex;align-items:center;justify-content:space-evenly;min-height:100vh;width:100%;background:var(--teal-dim);}
+.login-split-left{flex:0 1 900px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:24px;}
+.login-split-img{width:100%;height:auto;max-height:75vh;object-fit:contain;}
+.login-split-right{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:24px;}
 @media (max-width: 900px){
   .login-split-left{display:none;}
   .login-split-right{flex:1 1 100%;}
