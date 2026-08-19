@@ -107,7 +107,10 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
     rangeKey === 'custom' && customStart && customEnd ? `${customStart} → ${customEnd}` : 'Özel Aralık';
   const periodLabel = rangeKey === 'custom' ? customLabel : QUICK_RANGES.find((r) => r.key === rangeKey)?.label;
 
-  ChartJS.defaults.color = getColors(theme).text;
+  // Grafiklerin eksen/legend metin rengi tema değişince güncellensin diye —
+  // getColors() <html class="dark"> durumunu kendi okuyor, burada sadece
+  // Dashboard her render'da (tema değiştiğinde de) tetikliyor.
+  ChartJS.defaults.color = getColors().text;
 
   return (
     <div id="app" className={`show ${navCollapsed ? 'nav-collapsed' : ''}`}>
@@ -188,18 +191,18 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
         {activeView === 'overview' && (
           <>
             <div className="grid-2">
-              <LansmanTrendChart data={filteredData} theme={theme} months={monthsToShow} endDate={chartEndDate} />
-              <PersonLaunchChart data={filteredData} theme={theme} />
+              <LansmanTrendChart data={filteredData} months={monthsToShow} endDate={chartEndDate} />
+              <PersonLaunchChart data={filteredData} />
             </div>
             <div className="grid-2">
-              <OpenedTrendChart data={filteredData} theme={theme} months={monthsToShow} endDate={chartEndDate} />
-              <RatioTrendChart data={filteredData} theme={theme} months={monthsToShow} endDate={chartEndDate} />
+              <OpenedTrendChart data={filteredData} months={monthsToShow} endDate={chartEndDate} />
+              <RatioTrendChart data={filteredData} months={monthsToShow} endDate={chartEndDate} />
             </div>
             <div className="grid-2">
-              <StatusDonutChart data={filteredData} theme={theme} periodLabel={periodLabel} />
-              <TypeDonutChart data={filteredData} theme={theme} periodLabel={periodLabel} />
+              <StatusDonutChart data={filteredData} periodLabel={periodLabel} />
+              <TypeDonutChart data={filteredData} periodLabel={periodLabel} />
               {/* aynı grid'in ilk sütununa akar — üstteki sütunla piksel piksel hizalı kalır */}
-              <AltTipChart data={filteredData} theme={theme} periodLabel={periodLabel} />
+              <AltTipChart data={filteredData} periodLabel={periodLabel} />
             </div>
           </>
         )}
@@ -210,14 +213,13 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
               search={search}
               onDataChange={() => setDataVersion((v) => v + 1)}
               onNotify={notify}
-              theme={theme}
               user={user}
             />
           </Suspense>
         )}
         {activeView === 'people' && (
           <Suspense fallback={<PageFallback />}>
-            <PeoplePage theme={theme} search={search} />
+            <PeoplePage search={search} />
           </Suspense>
         )}
         {activeView === 'launches' && (
@@ -227,12 +229,12 @@ export default function Dashboard({ user, onLogout, theme, onToggleTheme }) {
         )}
         {activeView === 'teams' && (
           <Suspense fallback={<PageFallback />}>
-            <TeamsPage theme={theme} />
+            <TeamsPage />
           </Suspense>
         )}
         {activeView === 'reports' && (
           <Suspense fallback={<PageFallback />}>
-            <ReportsPage selectedMonth={reportMonth} onMonthChange={setReportMonth} theme={theme} />
+            <ReportsPage selectedMonth={reportMonth} onMonthChange={setReportMonth} />
           </Suspense>
         )}
       </main>

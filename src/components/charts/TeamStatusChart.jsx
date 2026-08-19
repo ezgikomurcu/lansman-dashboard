@@ -3,8 +3,8 @@ import { DATA, TEAMS, shortTeam } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function TeamStatusChart({ theme }) {
-  const colors = getColors(theme);
+export default function TeamStatusChart() {
+  const colors = getColors();
   const teamStatus = {};
   TEAMS.forEach((t) => (teamStatus[t] = { Açık: 0, 'Onay Bekleniyor': 0, Kapalı: 0 }));
   DATA.forEach((r) => {

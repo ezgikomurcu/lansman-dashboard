@@ -3,8 +3,8 @@ import { DATA, TEAMS, shortTeam } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function TeamVolumeChart({ theme }) {
-  const colors = getColors(theme);
+export default function TeamVolumeChart() {
+  const colors = getColors();
   const volume = TEAMS.map((t) => DATA.filter((r) => r.ekip === t).length);
 
   const data = {

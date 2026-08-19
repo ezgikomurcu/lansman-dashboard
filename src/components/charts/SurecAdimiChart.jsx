@@ -2,8 +2,8 @@ import { Bar } from 'react-chartjs-2';
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function SurecAdimiChart({ data, theme }) {
-  const colors = getColors(theme);
+export default function SurecAdimiChart({ data }) {
+  const colors = getColors();
   const counts = {};
   data.forEach((r) => {
     const key = r.surecAdimi || 'Belirsiz';

@@ -2,8 +2,8 @@ import { Doughnut } from 'react-chartjs-2';
 import { getColors } from '../../chartColors';
 import { donutOptions, donutCenterTextPlugin } from '../../chartOptions';
 
-export default function StatusDonutChart({ data, theme, periodLabel }) {
-  const colors = getColors(theme);
+export default function StatusDonutChart({ data, periodLabel }) {
+  const colors = getColors();
   const counts = { Açık: 0, 'Onay Bekleniyor': 0, Kapalı: 0, Reddedildi: 0 };
   data.forEach((r) => { if (counts[r.durum] !== undefined) counts[r.durum]++; });
 

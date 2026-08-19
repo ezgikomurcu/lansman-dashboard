@@ -2,8 +2,8 @@ import { Doughnut } from 'react-chartjs-2';
 import { getColors } from '../../chartColors';
 import { donutOptions, donutCenterTextPlugin } from '../../chartOptions';
 
-export default function TypeDonutChart({ data, theme, periodLabel }) {
-  const colors = getColors(theme);
+export default function TypeDonutChart({ data, periodLabel }) {
+  const colors = getColors();
   const counts = { Kampanya: 0, Postpaid: 0, Servis: 0 };
   data.forEach((r) => { if (counts[r.tip] !== undefined) counts[r.tip]++; });
 

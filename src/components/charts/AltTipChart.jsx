@@ -2,8 +2,8 @@ import { Bar } from 'react-chartjs-2';
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function AltTipChart({ data, theme, periodLabel }) {
-  const colors = getColors(theme);
+export default function AltTipChart({ data, periodLabel }) {
+  const colors = getColors();
   const counts = {};
   data.forEach((r) => {
     const key = r.altTip || 'Diğer';

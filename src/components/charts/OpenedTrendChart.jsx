@@ -3,8 +3,8 @@ import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyDa
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function OpenedTrendChart({ data, theme, months = 12, endDate }) {
-  const colors = getColors(theme);
+export default function OpenedTrendChart({ data, months = 12, endDate }) {
+  const colors = getColors();
   const end = endDate || RANGE_END;
   const monthList = lastNMonths(months, end);
   const counts = monthList.map((mk) => data.filter((r) => monthKey(r.acilis) === mk).length);

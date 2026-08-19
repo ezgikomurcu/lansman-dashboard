@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { API_URL } from '../data/dummyData';
-import { MoonIcon, SunIcon, PaletteIcon, SparkleIcon } from './Icons';
+import { MoonIcon, SunIcon } from './Icons';
 
 export default function Login({ onLogin, theme, onToggleTheme }) {
   const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'forgot' | 'reset'
@@ -141,7 +141,7 @@ export default function Login({ onLogin, theme, onToggleTheme }) {
       <div className="login-split-right">
         <div className="login-card">
           <button type="button" className="login-theme-btn" onClick={onToggleTheme} aria-label="Temayı değiştir">
-            {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : theme === 'custom' ? <PaletteIcon /> : <SparkleIcon />}
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
 
           <div className="login-brand">

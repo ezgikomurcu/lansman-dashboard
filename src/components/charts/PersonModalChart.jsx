@@ -3,8 +3,8 @@ import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyDa
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function PersonModalChart({ personName, theme, data, months = 12, endDate }) {
-  const colors = getColors(theme);
+export default function PersonModalChart({ personName, data, months = 12, endDate }) {
+  const colors = getColors();
   const end = endDate || RANGE_END;
   const source = data || [];
   const launches = source.filter((r) => r.acanKisi === personName && r.lansman);

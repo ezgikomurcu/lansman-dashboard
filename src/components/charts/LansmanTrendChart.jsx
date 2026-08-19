@@ -3,8 +3,8 @@ import { RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/dummyDa
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function LansmanTrendChart({ data, theme, months = 12, endDate }) {
-  const colors = getColors(theme);
+export default function LansmanTrendChart({ data, months = 12, endDate }) {
+  const colors = getColors();
   const end = endDate || RANGE_END;
   const launches = data.filter((r) => r.lansman);
   const monthList = lastNMonths(months, end);

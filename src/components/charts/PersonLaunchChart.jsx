@@ -3,8 +3,8 @@ import { PEOPLE } from '../../data/dummyData';
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function PersonLaunchChart({ data, theme }) {
-  const colors = getColors(theme);
+export default function PersonLaunchChart({ data }) {
+  const colors = getColors();
   const launches = data.filter((r) => r.lansman);
   const counts = {};
   PEOPLE.forEach((p) => (counts[p] = 0));

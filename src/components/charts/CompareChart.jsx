@@ -3,8 +3,8 @@ import { DATA, RANGE_END, lastNMonths, monthKey, monthLabel } from '../../data/d
 import { getColors } from '../../chartColors';
 import { cartesianOptions } from '../../chartOptions';
 
-export default function CompareChart({ theme, endDate }) {
-  const colors = getColors(theme);
+export default function CompareChart({ endDate }) {
+  const colors = getColors();
   const end = endDate || RANGE_END;
   const months = lastNMonths(6, end);
   const counts = months.map((mk) => DATA.filter((r) => r.lansman && monthKey(r.lansman) === mk).length);

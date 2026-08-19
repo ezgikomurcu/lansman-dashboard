@@ -25,7 +25,7 @@ ChartJS.register(
   Filler
 );
 
-ChartJS.defaults.color = '#9AA6C3';
+ChartJS.defaults.color = '#8A8390';
 ChartJS.defaults.font.family = "'Manrope', sans-serif";
 ChartJS.defaults.font.size = 11;
 

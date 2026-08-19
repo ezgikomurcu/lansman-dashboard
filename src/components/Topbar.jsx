@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { BellIcon, MoonIcon, SunIcon, PaletteIcon, SparkleIcon, SearchIcon } from './Icons';
+import { BellIcon, SearchIcon, MoonIcon, SunIcon } from './Icons';
 
 const PAGE_TITLES = {
   overview: 'Genel Bakış',
@@ -88,7 +88,7 @@ export default function Topbar({ activeView, search, onSearchChange, notificatio
         </div>
 
         <button type="button" className="icon-btn" onClick={onToggleTheme} aria-label="Temayı değiştir">
-           {theme === 'dark' ? <MoonIcon /> : theme === 'light' ? <SunIcon /> : theme === 'custom' ? <PaletteIcon /> : <SparkleIcon />}
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
     </div>

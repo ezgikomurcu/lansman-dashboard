@@ -10,7 +10,7 @@ const QUICK_RANGES = [
   { key: 'all', label: 'Tüm zamanlar' }
 ];
 
-export default function PeoplePage({ theme, search }) {
+export default function PeoplePage({ search }) {
   const [selected, setSelected] = useState(null);
   const [rangeKey, setRangeKey] = useState('all');
   const [showCustomPicker, setShowCustomPicker] = useState(false);
@@ -152,7 +152,7 @@ export default function PeoplePage({ theme, search }) {
             </div>
           </div>
 
-          <PersonModalChart personName={selected} theme={theme} data={filteredData} months={monthsToShow} endDate={chartEndDate} />
+          <PersonModalChart personName={selected} data={filteredData} months={monthsToShow} endDate={chartEndDate} />
         </Modal>
       )}
     </>

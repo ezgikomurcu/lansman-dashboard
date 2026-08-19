@@ -61,15 +61,10 @@ function buildSummaryBullets({ openedThis, openedLast, launchesThis, launchesLas
   return bullets;
 }
 
-// PDF her zaman beyaz kağıt zemininde basılır (koyu bir sayfa basılabilir/okunabilir
-// olmaz), bu yüzden temanın tamamı değil sadece vurgu rengi taşınır — her temanın
-// kendi tonuyla ama kağıt üstünde okunaklı kalacak koyulukta.
-const PDF_THEME = {
-  dark: { accent: [153, 119, 0], tint: [255, 250, 230] },
-  light: { accent: [153, 119, 0], tint: [255, 250, 230] },
-  custom: { accent: [140, 60, 80], tint: [250, 240, 242] },
-  vivid: { accent: [196, 24, 90], tint: [253, 235, 243] }
-};
+// PDF her zaman beyaz kağıt zemininde basılır, uygulamanın vurgu rengiyle
+// (pembe) ama kağıt üstünde okunaklı kalacak koyulukta.
+const PDF_ACCENT = [196, 24, 90];
+const PDF_TINT = [253, 235, 243];
 
 // ---- Font dosyasını (public/fonts'tan) okuyup jsPDF'e tanıtan yardımcı fonksiyon ----
 async function loadFont(doc, url, fontName, style) {
@@ -84,7 +79,7 @@ async function loadFont(doc, url, fontName, style) {
   doc.addFont(fileName, fontName, style);
 }
 
-export default function ReportsPage({ selectedMonth, onMonthChange, theme }) {
+export default function ReportsPage({ selectedMonth, onMonthChange }) {
   function monthsBetweenKeys(startKey, endKey) {
     const [sy, sm] = startKey.split('-').map(Number);
     const [ey, em] = endKey.split('-').map(Number);
@@ -148,7 +143,8 @@ export default function ReportsPage({ selectedMonth, onMonthChange, theme }) {
       const pageWidth = doc.internal.pageSize.getWidth();
       const periodText = monthLabel(selectedMonth);
 
-      const { accent: BORDO, tint: ACIK_ZEMIN } = PDF_THEME[theme] || PDF_THEME.dark;
+      const BORDO = PDF_ACCENT;
+      const ACIK_ZEMIN = PDF_TINT;
       const ANTRASIT = [40, 40, 42];
       const GRI = [125, 125, 128];
       const KENAR = [228, 220, 219];

@@ -5,7 +5,7 @@ import SurecAdimiChart from './charts/SurecAdimiChart';
 
 const PAGE_SIZE = 20;
 
-export default function ApprovalQueue({ search, onDataChange, onNotify, theme, user }) {
+export default function ApprovalQueue({ search, onDataChange, onNotify, user }) {
   const [loadingId, setLoadingId] = useState(null);
   const [page, setPage] = useState(1);
 
@@ -50,7 +50,7 @@ export default function ApprovalQueue({ search, onDataChange, onNotify, theme, u
           : '✓ SLA süresini aşan talep yok.'}
       </div>
 
-      <SurecAdimiChart data={activeAll} theme={theme} />
+      <SurecAdimiChart data={activeAll} />
 
       <div className="queue-list">
         {pageItems.length === 0 && <div className="panel">Bekleyen talep yok.</div>}
