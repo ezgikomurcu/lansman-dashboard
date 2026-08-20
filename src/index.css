@@ -6,11 +6,13 @@
   --violet:#5B4FE0; --violet-dim:rgba(91,79,224,0.12);
   --amber:#F2A93C; --amber-dim:rgba(242,169,60,0.16);
   --coral:#DC2F44; --coral-dim:rgba(220,47,68,0.12);
+  --green:#1E9E5E; --green-dim:rgba(30,158,94,0.12);
   --tc-navy:#15121A; --tc-yellow:#E31C63;
   /* Ham --teal/--coral beyaz zeminde 4.5:1 sınırına çok yakın (4.55/4.63) —
      güvenlik payı için biraz koyulaştırılmış "ink" varyantları. */
   --ink-accent:#C4185A;
   --ink-danger:#C4283A;
+  --ink-green:#15803D;
   --ink-amber:#7A4E15;
   --ink-violet:var(--violet);
   --radius:20px;
@@ -581,7 +583,8 @@ tbody tr:nth-child(even){background:rgba(0,0,0,0.035);}
   box-shadow:0 20px 50px rgba(0,0,0,0.2);z-index:100;
   animation:toastIn .2s ease;
 }
-.toast.success{border-color:var(--teal);color:var(--ink-accent);}
+.toast.success{border-color:var(--green);color:var(--ink-green);}
+.toast.reject{border-color:var(--coral);color:var(--ink-danger);}
 .toast.error{border-color:var(--coral);color:var(--ink-danger);}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
 

@@ -35,7 +35,8 @@ export default function ApprovalQueue({ search, onDataChange, onNotify, user }) 
       if (!res.ok) throw new Error(data.error || 'Sunucu hatası');
       await loadDataFromAPI();
       onDataChange();
-      onNotify(action === 'approve' ? 'Talep onaylandı ✓' : 'Talep reddedildi', 'success');
+      if (action === 'approve') onNotify('Talep onaylandı', 'success');
+      else onNotify('Talep reddedildi', 'reject');
     } catch (err) {
       onNotify('İşlem başarısız: ' + err.message, 'error');
     }
